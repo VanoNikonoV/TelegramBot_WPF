@@ -1,0 +1,186 @@
+﻿<Window x:Class="TelegramBot_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TelegramBot_WPF"
+        mc:Ignorable="d"
+        Title="TelegramBot" 
+        MinHeight="450" Height="550"
+        MinWidth="600"  Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="Silver">
+
+    <!--Это информирует элемент управления Wi о том какие обработчики вызывать
+    при поступлении команд Open Save-->
+    <!--<Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open"
+                        Executed="OpenCmdExecuted"
+                        CanExecute="OpenCmdCanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Save"
+                        Executed="SaveCmdExecuted"
+                        CanExecute="SaveCmdCanExecute"/>
+    </Window.CommandBindings>-->
+
+    <Grid ShowGridLines="False">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel>
+            <Menu Grid.Column="0" Grid.ColumnSpan="2"
+              HorizontalAlignment="Left"
+              Background="White"
+              BorderBrush="Black"
+              FontSize="20">
+                <MenuItem Header="Файл">
+                    <MenuItem Command="ApplicationCommands.Open"></MenuItem>
+                    <MenuItem Command="ApplicationCommands.Save"></MenuItem>
+                    <Separator/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <!--Отправитель-->
+        <ListBox x:Name="usersList" 
+                 Grid.Column="0" Grid.Row="1"
+                 Grid.RowSpan ="2"
+                 HorizontalAlignment="Stretch"
+                 Background="{StaticResource MyGridBrushResource}"
+                 Margin="5" 
+                 VerticalAlignment="Stretch"
+                 IsSynchronizedWithCurrentItem="True"
+                 BorderThickness="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <!--SelectionChanged="user_Selected">-->
+
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
+                            CornerRadius="10">
+                        <StackPanel    Margin="5" Orientation="Vertical">
+                            <TextBlock Text="{Binding Nick}" Margin="0" 
+                                       FontSize="15" 
+                                       FontStyle="Italic" 
+                                       Foreground="Green"/>
+                            <TextBlock Text="{Binding LastMessage, UpdateSourceTrigger=PropertyChanged}" 
+                                       Margin="0" 
+                                       FontSize="20" 
+                                       TextTrimming="WordEllipsis"></TextBlock>
+                        <!--Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, 
+                                       AncestorType={x:Type TextBlock}}, Path=ActualWidth}"-->
+                            <TextBlock Text="{Binding Time, StringFormat=s}" 
+                                       Margin="10 0" FontSize="10" 
+                                       Foreground="Gray" 
+                                       TextAlignment="Right"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!--Получатель сообщения-->
+
+        <!--<GroupBox x:Name="concreteUser"
+                 Grid.Column="1" Grid.Row="1"
+                 FontSize="26"
+                 Margin="5">
+            <StackPanel DataContext="{Binding ElementName = usersList}">
+                <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
+                            CornerRadius="10">
+                    <StackPanel    Margin="5">
+
+                        <TextBlock Text="{Binding Path= SelectedItem.Nick}" Margin="0" 
+                                       FontSize="15" 
+                                       FontStyle="Italic" 
+                                       Foreground="Green"/>
+
+                        <TextBlock Text="{Binding Path=SelectedItem.Messages/}" Margin="0" FontSize="20" 
+                                       TextWrapping="Wrap"/>
+
+                        <TextBlock Text="{Binding Path=SelectedItem.Time}" Margin="10 0" FontSize="10" Foreground="Gray" TextAlignment="Right"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            
+        </GroupBox>-->
+
+        <ListBox x:Name="concreteUser"
+                 Grid.Column="1" Grid.Row="1"
+                 FontSize="26"
+                 Background="{StaticResource MyGridBrushResource}"
+                 Margin="5,5,5,180" 
+                 Grid.RowSpan="2"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ItemsSource="{Binding ElementName=usersList}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="5">
+                        <TextBlock Name="concreteUser_Nick"
+                                   Margin="0" 
+                                   FontSize="15" 
+                                   FontStyle="Italic" 
+                                   Foreground="Green"
+                                   Text="{Binding ElementName=usersList, Path=SelectedItem.Nick}"/>
+
+                        <TextBlock Name="concreteUser_Message" 
+                                   Margin="0" FontSize="20" 
+                                   TextWrapping="Wrap"
+                                   Text="{Binding ElementName=usersList, Path=SelectedItem.Messages}"/>
+
+                            <TextBlock  Margin="10 0"
+                                    FontSize="10" 
+                                    Foreground="Gray" 
+                                    TextAlignment="Right"/> 
+                    </StackPanel>
+                </DataTemplate>
+           </ListBox.ItemTemplate>        
+
+        </ListBox>
+
+        <GroupBox FontSize="20"
+                  Header="Отправка сообщения"
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Bottom"
+                  Grid.Column="1" Grid.Row="1"
+                  Grid.RowSpan="2">
+
+            <StackPanel VerticalAlignment="Bottom">
+
+                <TextBlock x:Name="TargetSend" 
+                           Text="{Binding ElementName=usersList, Path=SelectedItem.Id}"
+                           Visibility="Collapsed"
+                           TextWrapping ="Wrap"
+                           
+                           Margin="5"/>
+
+                <TextBox x:Name="txtMsgSend"
+                         Text="Напишите текс для отправки"
+                         Height="100"
+                         FontSize="20" 
+                         Margin="5"
+                         MaxLength="250"
+                         TextWrapping="Wrap" 
+                         Opacity="0.5"/>
+
+                <Button x:Name="btnMsgSend" 
+                        FontSize="20" 
+                        Width="165"
+                        Content="Отправить" 
+                        Click="btnMsgSendClick" 
+                        Margin="5,0,110.6,0" 
+                        HorizontalAlignment="Left"/>
+
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+
+</Window>
