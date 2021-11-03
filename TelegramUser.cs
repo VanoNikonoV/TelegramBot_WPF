@@ -47,15 +47,13 @@ namespace TelegramBot_WPF
             }
         }
 
-        //public int IndexLastMessege
-        //{
-        //    get { int i = this.Messages.Count; return --i; }
-        //}
-
         public string LastMessage
         {
-            get { int i = this.Messages.Count; --i;
-                    return Messages[i]; }
+            get { 
+                    int i = this.Messages.Count; 
+                    --i;
+                    return Messages[i]; 
+                } 
         }
         public DateTime Time { get; }
 
@@ -73,10 +71,10 @@ namespace TelegramBot_WPF
         /// </summary>
         public ObservableCollection<string> Messages { get; set; }
 
-        public override string ToString()
-        {
-            return Messages.ToString();
-        }
+        //public override string ToString()
+        //{
+        //    return $"{Messages} + \n + {Time}";
+        //}
 
         /// <summary>
         /// Добавление сообщения в коллекцию
@@ -88,8 +86,6 @@ namespace TelegramBot_WPF
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Messages)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.LastMessage)));
         }
-        
-
 
     }
 }

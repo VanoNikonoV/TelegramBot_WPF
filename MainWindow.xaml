@@ -9,34 +9,98 @@
         MinHeight="450" Height="550"
         MinWidth="600"  Width="800"
         WindowStartupLocation="CenterScreen"
-        Background="Silver">
+        Background="White" Loaded="Window_Loaded">
+
+    <Window.Resources>
+
+        <local:MyConverter x:Key="MyConverter"/>
+
+        <DataTemplate x:Key="Sender">
+            <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
+                            CornerRadius="10">
+                <StackPanel    Margin="5" Orientation="Vertical">
+                    <TextBlock Text="{Binding Nick}" Margin="0" 
+                                       FontSize="15" 
+                                       FontStyle="Italic" 
+                                       Foreground="Green"/>
+                    <TextBlock Text="{Binding LastMessage, UpdateSourceTrigger=PropertyChanged}" 
+                                       Margin="0" 
+                                       FontSize="20" 
+                                       TextTrimming="WordEllipsis"></TextBlock>
+
+                    <TextBlock Text="{Binding Time, StringFormat=s}" 
+                                       Margin="10 0" FontSize="10" 
+                                       Foreground="Gray" 
+                                       TextAlignment="Right"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Get" >
+            <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
+                            CornerRadius="10">
+                <StackPanel    Margin="5" Orientation="Vertical">
+
+                    <TextBlock x:Name="concreteUser_Message"
+                        Text="{Binding ElementName=usersList, Path=SelectedItem.Messages/, 
+                                       UpdateSourceTrigger=PropertyChanged}" 
+                                       Margin="0" 
+                                       FontSize="20" 
+                                       TextWrapping="Wrap"></TextBlock>
+
+                    <TextBlock x:Name="concreteUser_Nick"
+                        Text="{Binding ElementName=usersList, 
+                                     Path=SelectedItem.Time, 
+                                     Converter={StaticResource MyConverter}}" 
+                                       Margin="10 0" FontSize="10" 
+                                       Foreground="Gray" 
+                                       TextAlignment="Right"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+    </Window.Resources>
 
     <!--Это информирует элемент управления Wi о том какие обработчики вызывать
     при поступлении команд Open Save-->
-    <!--<Window.CommandBindings>
+    <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open"
                         Executed="OpenCmdExecuted"
                         CanExecute="OpenCmdCanExecute"/>
         <CommandBinding Command="ApplicationCommands.Save"
                         Executed="SaveCmdExecuted"
                         CanExecute="SaveCmdCanExecute"/>
-    </Window.CommandBindings>-->
+    </Window.CommandBindings>
 
-    <Grid ShowGridLines="False">
+    <Grid ShowGridLines="False" >
+
+        
+            
+        
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="3"/>
+            <ColumnDefinition Width="2*"/>
+           
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
+        <GridSplitter Grid.Column="1"
+                      Grid.Row="1"
+                      Grid.RowSpan="3"
+                      Background="Aqua"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"></GridSplitter>
+
         <DockPanel>
-            <Menu Grid.Column="0" Grid.ColumnSpan="2"
+            <Menu Grid.Column="0" Grid.ColumnSpan="1"
               HorizontalAlignment="Left"
               Background="White"
               BorderBrush="Black"
@@ -49,138 +113,92 @@
             </Menu>
         </DockPanel>
 
-        <!--Отправитель-->
-        <ListBox x:Name="usersList" 
-                 Grid.Column="0" Grid.Row="1"
+        
+            <!--Отправитель-->
+        <ListBox x:Name="usersList"
+                 Grid.Column="0" Grid.Row="2"
                  Grid.RowSpan ="2"
                  HorizontalAlignment="Stretch"
                  Background="{StaticResource MyGridBrushResource}"
-                 Margin="5" 
-                 VerticalAlignment="Stretch"
                  IsSynchronizedWithCurrentItem="True"
-                 BorderThickness="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <!--SelectionChanged="user_Selected">-->
-
-
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
-                            CornerRadius="10">
-                        <StackPanel    Margin="5" Orientation="Vertical">
-                            <TextBlock Text="{Binding Nick}" Margin="0" 
-                                       FontSize="15" 
-                                       FontStyle="Italic" 
-                                       Foreground="Green"/>
-                            <TextBlock Text="{Binding LastMessage, UpdateSourceTrigger=PropertyChanged}" 
-                                       Margin="0" 
-                                       FontSize="20" 
-                                       TextTrimming="WordEllipsis"></TextBlock>
-                        <!--Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, 
-                                       AncestorType={x:Type TextBlock}}, Path=ActualWidth}"-->
-                            <TextBlock Text="{Binding Time, StringFormat=s}" 
-                                       Margin="10 0" FontSize="10" 
-                                       Foreground="Gray" 
-                                       TextAlignment="Right"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+                 Margin="5" 
+                 VerticalAlignment="Stretch" 
+                 BorderThickness="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ItemTemplate="{StaticResource Sender}">
         </ListBox>
 
         <!--Получатель сообщения-->
-
-        <!--<GroupBox x:Name="concreteUser"
-                 Grid.Column="1" Grid.Row="1"
-                 FontSize="26"
-                 Margin="5">
-            <StackPanel DataContext="{Binding ElementName = usersList}">
-                <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
-                            CornerRadius="10">
-                    <StackPanel    Margin="5">
-
-                        <TextBlock Text="{Binding Path= SelectedItem.Nick}" Margin="0" 
-                                       FontSize="15" 
-                                       FontStyle="Italic" 
-                                       Foreground="Green"/>
-
-                        <TextBlock Text="{Binding Path=SelectedItem.Messages/}" Margin="0" FontSize="20" 
-                                       TextWrapping="Wrap"/>
-
-                        <TextBlock Text="{Binding Path=SelectedItem.Time}" Margin="10 0" FontSize="10" Foreground="Gray" TextAlignment="Right"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-            
-        </GroupBox>-->
-
         <ListBox x:Name="concreteUser"
-                 Grid.Column="1" Grid.Row="1"
+                 Grid.Column="2" Grid.Row="2"
                  FontSize="26"
                  Background="{StaticResource MyGridBrushResource}"
-                 Margin="5,5,5,180" 
-                 Grid.RowSpan="2"
+                 Margin="5"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemsSource="{Binding ElementName=usersList}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="5">
-                        <TextBlock Name="concreteUser_Nick"
-                                   Margin="0" 
-                                   FontSize="15" 
-                                   FontStyle="Italic" 
-                                   Foreground="Green"
-                                   Text="{Binding ElementName=usersList, Path=SelectedItem.Nick}"/>
-
-                        <TextBlock Name="concreteUser_Message" 
-                                   Margin="0" FontSize="20" 
-                                   TextWrapping="Wrap"
-                                   Text="{Binding ElementName=usersList, Path=SelectedItem.Messages}"/>
-
-                            <TextBlock  Margin="10 0"
-                                    FontSize="10" 
-                                    Foreground="Gray" 
-                                    TextAlignment="Right"/> 
-                    </StackPanel>
-                </DataTemplate>
-           </ListBox.ItemTemplate>        
-
+                 ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Messages}">
+           
+            
+            <!--ItemsSource="{Binding ElementName=usersList, Path = SelectedItem.Messages}">-->
+            <!--ItemTemplate="{StaticResource Get}"-->
         </ListBox>
+
+        
 
         <GroupBox FontSize="20"
                   Header="Отправка сообщения"
                   HorizontalAlignment="Stretch" 
-                  VerticalAlignment="Bottom"
-                  Grid.Column="1" Grid.Row="1"
-                  Grid.RowSpan="2">
+                  VerticalAlignment="Stretch"
+                  
+                  Grid.Column="2" Grid.Row="3">
 
-            <StackPanel VerticalAlignment="Bottom">
+            <DockPanel VerticalAlignment="Stretch" LastChildFill="False" >
+
 
                 <TextBlock x:Name="TargetSend" 
                            Text="{Binding ElementName=usersList, Path=SelectedItem.Id}"
                            Visibility="Collapsed"
-                           TextWrapping ="Wrap"
-                           
                            Margin="5"/>
 
                 <TextBox x:Name="txtMsgSend"
+                         DockPanel.Dock="Top"
+                         Height="80"
                          Text="Напишите текс для отправки"
-                         Height="100"
                          FontSize="20" 
-                         Margin="5"
                          MaxLength="250"
                          TextWrapping="Wrap" 
-                         Opacity="0.5"/>
+                         Opacity="0.5" />
 
                 <Button x:Name="btnMsgSend" 
+                        DockPanel.Dock="Left"
                         FontSize="20" 
                         Width="165"
                         Content="Отправить" 
-                        Click="btnMsgSendClick" 
-                        Margin="5,0,110.6,0" 
-                        HorizontalAlignment="Left"/>
+                        Click="btnMsgSendClick"
+                        Background="AntiqueWhite"/>
 
-            </StackPanel>
+                <Button x:Name="btnDownload"
+                        DockPanel.Dock="Left"
+                        Width="40" 
+                        Background="AntiqueWhite" Click="download_Click">
+                    <Image Source="download.jpg" Stretch="Fill"
+                           Width="30" Cursor="ArrowCD" Height="30"></Image>
+                </Button>
+
+            </DockPanel>
         </GroupBox>
+
+        <Frame x:Name="Main" Visibility="Visible"
+               NavigationUIVisibility="Visible"
+               VerticalAlignment="Stretch"
+               HorizontalAlignment="Stretch"
+               Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
+        </Frame>
+
+        <Frame x:Name="Download" Visibility="Visible"
+               NavigationUIVisibility="Visible"
+               VerticalAlignment="Stretch"
+               HorizontalAlignment="Stretch"
+               Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
+        </Frame>
     </Grid>
 
 </Window>
