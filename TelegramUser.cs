@@ -16,6 +16,7 @@ namespace TelegramBot_WPF
             this.nick = Nickname;
             this.id = ChatId;
             Messages = new ObservableCollection<string>();
+            // сделать класс message с полями текст сообщения время и отправитель
             this.Time = DateTime.Now;
         }
         public TelegramUser()
@@ -56,6 +57,7 @@ namespace TelegramBot_WPF
                 } 
         }
         public DateTime Time { get; }
+       
 
         public event PropertyChangedEventHandler PropertyChanged;
 

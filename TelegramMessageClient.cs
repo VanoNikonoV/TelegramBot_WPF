@@ -15,7 +15,7 @@ namespace TelegramBot_WPF
 {
     class TelegramMessageClient
     {
-        private MainWindow window;
+        private Home window;
 
         private TelegramBotClient bot;
 
@@ -24,7 +24,7 @@ namespace TelegramBot_WPF
         public ObservableCollection<InfoFiles> InfoFiles { get; set; }
 
         [Obsolete]
-        public TelegramMessageClient(MainWindow W, string PathToken = @"token.txt")
+        public TelegramMessageClient(Home W, string PathToken = @"token.txt")
         {
             this.Users = new ObservableCollection<TelegramUser>();
 

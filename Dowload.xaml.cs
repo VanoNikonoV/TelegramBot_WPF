@@ -19,14 +19,17 @@ namespace TelegramBot_WPF
     /// <summary>
     /// Логика взаимодействия для Page1.xaml
     /// </summary>
-    public partial class Page1 : Page
+    public partial class Dowload : Page
     {
         
-        public Page1()
+        public Dowload()
         {
             InitializeComponent();
+        }
 
-            //fileDownloadDG.ItemsSource = client.InfoFiles;
+        public Dowload(object data):this()
+        {
+            this.DataContext = data;
         }
     }
 }

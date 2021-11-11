@@ -34,125 +34,15 @@ namespace TelegramBot_WPF
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : NavigationWindow
     {
-        private readonly string pathMsg = $"{Environment.CurrentDirectory}\\MessageLog.txt";
-
-        private readonly string pathFile = $"{Environment.CurrentDirectory}\\FileDownload.json";
-
-        private MessageLogSaveAndLoade MessageLog;
-
-        private FileSaveAndLoade FileDownload;
-
-        TelegramMessageClient client;
-
-        public Page1 p1 = new Page1();
-        
 
         [Obsolete]
         public MainWindow()
         {
             InitializeComponent();
 
-            client = new TelegramMessageClient(this);
         }
 
-        /// <summary>
-        /// Отправляет сообщение пользователю
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btnMsgSendClick(object sender, RoutedEventArgs e)
-        {
-            var curUser = usersList.SelectedItem as TelegramUser; 
-
-            client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
-
-            txtMsgSend.Text = string.Empty;
-
-            MessageLog.SaveFile(client.Users);
-        }
-
-        /// <summary>
-        /// Загрузка данных
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            MessageLog = new MessageLogSaveAndLoade(pathMsg);
-
-            FileDownload = new FileSaveAndLoade(pathFile);
-
-            try
-            {
-                client.Users = MessageLog.LoadFile();
-
-                client.InfoFiles = FileDownload.LoadFile(); //TelegramMessageClient.InfoFiles = FileDownload.LoadFile();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                Close();
-            }
-
-            usersList.Items.Clear();
-
-            usersList.ItemsSource = client.Users;
-
-        }
-
-        private void OpenCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
-
-        private void OpenCmdExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var openDlg = new OpenFileDialog { Filter = "Text files|*.txt" };
-
-            if(true == openDlg.ShowDialog())
-            {
-                client.Users = MessageLog.LoadFile(openDlg.FileName);
-                //string dataFromFile = File.ReadAllText(openDlg.FileName);
-            }
-        }
-
-        private void SaveCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
-
-        private void SaveCmdExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var saveDlg = new SaveFileDialog { Filter = "Text files|*.json" };
-
-            if (true == saveDlg.ShowDialog())
-            {
-                MessageLog.SaveFile(client.Users, saveDlg.FileName);
-
-                //FileDownload.SaveFile(client.InfoFiles);
-            }
-        }
-
-        private void download_Click(object sender, RoutedEventArgs e)
-        {
-            Download.Content = p1;
-            p1.DataContext = client.InfoFiles;
-        }
-
-
-
-        /// <summary>
-        /// Выводи сообщение от пользователя на экран
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void user_Selected(object sender, SelectionChangedEventArgs e)
-        //{
-        //    TelegramUser c = (TelegramUser)usersList.SelectedItem;
-
-        //    concreteUser.ItemsSource = c.Messages;
-        //}
     }
 }
