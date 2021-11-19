@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using Telegram.Bot.Types.InputFiles;
+using System.Diagnostics;
 
 namespace TelegramBot_WPF
 {
@@ -20,7 +22,7 @@ namespace TelegramBot_WPF
 
         const string basUrl_2 = @"https://zvukogram.com/index.php?r=api/result";
 
-        const string token = @"token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&";
+        const string token = @"&token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&";
 
         #region help
         //'format' - формат результирующего файла, по умолчанию = mp3, доступные значения ( 'mp3', 'wav', 'ogg')
@@ -61,10 +63,10 @@ namespace TelegramBot_WPF
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(basUrl_1);
 
             req.Method = "POST";
-            req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
+            req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
             req.CookieContainer = cookies;
-            req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36 OPR/80.0.4170.63";
-            req.ContentType = "text/plain;charset=UTF-8"; //application / x - www - form - urlencoded;
+            req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
+            req.ContentType = "application/x-www-form-urlencoded;";
 
             using (var requestStream = req.GetRequestStream())
 
@@ -79,25 +81,11 @@ namespace TelegramBot_WPF
             {
                 var result = sr.ReadToEnd();//ответ
 
-                var id_pars = JObject.Parse(result)["id"].ToString();
+                int id = Convert.ToInt32(JObject.Parse(result)["id"].ToString());
+                int status =Convert.ToInt32(JObject.Parse(result)["status"]);
 
-                var status_pars = JObject.Parse(result)["status"];
-
-                using (StreamWriter sw = new StreamWriter("temp_info.txt"))
-                {
-                    sw.WriteLine(id_pars);
-
-                    sw.WriteLine(status_pars);
-                }
+                return (id, status);
             }
-
-            string[] text = File.ReadAllLines(@"temp_info.txt");
-
-            int id = Convert.ToInt32(text[0]);
-            int status = Convert.ToInt32(text[1]);
-
-            return (id, status);
-
         }
 
         /// <summary>
@@ -105,7 +93,7 @@ namespace TelegramBot_WPF
         /// </summary>
         /// <param name="data">Если результать обработки удачный возвращает InputOnlineFile</param>
         /// <returns>Путь к файлу для скачивания</returns>
-        public static InputOnlineFile Request_2(string data)
+        public static (string path, string format) Request_2(string data)
         {
             CookieContainer cookies = new CookieContainer();
 
@@ -123,6 +111,9 @@ namespace TelegramBot_WPF
                 sw.Write(token + data);
             }
 
+            string path = string.Empty;
+            string format = string.Empty;
+
             using (var responseStream = req.GetResponse().GetResponseStream())
 
             using (StreamReader sr = new StreamReader(responseStream))
@@ -135,41 +126,19 @@ namespace TelegramBot_WPF
 
                 if ((int)status == 0)
                 {
-                    Thread.Sleep(200);
+                    Thread.Sleep(1000);
                     Request_2(data);
+                    Debug.WriteLine($"Статус {status}");
                 }
                 if ((int)status == 1)
                 {
-                    var path = JObject.Parse(result)["file"];
+                    path = Convert.ToString(JObject.Parse(result)["file"]);
 
-                    string file_name = path.ToString(); //.Split(".").Last();
-
-                    var format = JObject.Parse(result)["format"];
-
-                    //DownloadFileAsync(path.ToString(), id + "."+ format.ToString()).GetAwaiter();
-
-                    using (StreamWriter sw = new StreamWriter("info2.txt"))
-                    {
-                        sw.WriteLine(path.ToString());
-
-                        sw.WriteLine(id + "." + format.ToString());
-                    }
+                    format = Convert.ToString(JObject.Parse(result)["format"]);
                 }
             }
-
-            string[] text = File.ReadAllLines(@"info2.txt");
-
-            InputOnlineFile pathFile = new InputOnlineFile(text[0]);
-
-            return pathFile;
+            return (path, format);
         }
-
-        //public static async Task DownloadFileAsync(string uri, string file_name)
-        //{
-        //    WebClient client = new WebClient();
-
-        //    await client.DownloadFileTaskAsync(new Uri(uri), file_name);
-        //}
 
     }
 

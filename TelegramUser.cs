@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
 
 namespace TelegramBot_WPF
@@ -10,18 +11,19 @@ namespace TelegramBot_WPF
     /// </summary>
     public class TelegramUser : INotifyPropertyChanged, IEquatable<TelegramUser>
     {
-        //public UserPhoto -  getUserProfilePhotos
+
+        // Фото пользователя
+        // var userPhoto = bot.GetUserProfilePhotosAsync(message.From.Id).Result;
+        // var file = await bot.GetFileAsync(userPhoto.Photos[0][userPhoto.Photos.Length - 1].FileId);
+        // DownLoad(userPhoto.Photos[0][userPhoto.Photos.Length - 1].FileId, "Иван");
+
         public TelegramUser(string Nickname, long ChatId)
         {
             this.nick = Nickname;
             this.id = ChatId;
-            Messages = new ObservableCollection<string>();
-            // сделать класс message с полями текст сообщения время и отправитель
-            this.Time = DateTime.Now;
-        }
-        public TelegramUser()
-        {
-                
+            this.Chat = new ObservableCollection<Message>();
+            //Messages = new ObservableCollection<string>();
+            //this.Time = DateTime.Now;
         }
 
         private string nick;
@@ -47,17 +49,34 @@ namespace TelegramBot_WPF
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Id)));
             }
         }
-
+        
+        [JsonIgnore]
         public string LastMessage
         {
-            get { 
-                    int i = this.Messages.Count; 
-                    --i;
-                    return Messages[i]; 
-                } 
+            get
+            {
+                int i = this.Chat.Count;
+                --i;
+                return Chat[i].Text;
+            }
         }
-        public DateTime Time { get; }
-       
+
+        public string LastDateTime 
+        { 
+            get
+            {
+                int i = this.Chat.Count;
+                --i;
+                return Chat[i].Time.ToString();
+            }
+                
+        }
+
+        //public string AllMessage { 
+
+        //    get { return this.Chat[].Text;  }
+
+        //}
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -71,21 +90,20 @@ namespace TelegramBot_WPF
         /// <summary>
         /// Коллекция всех сообщений
         /// </summary>
-        public ObservableCollection<string> Messages { get; set; }
+        //public ObservableCollection<string> Messages { get; set; }
 
-        //public override string ToString()
-        //{
-        //    return $"{Messages} + \n + {Time}";
-        //}
+        public ObservableCollection<Message> Chat { get; set; }
 
         /// <summary>
         /// Добавление сообщения в коллекцию
         /// </summary>
         /// <param name="Text">Текс полученного сообщения</param>
-        public void AddMessage(string Text)
-        { 
-            Messages.Add(Text);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Messages)));
+        public void AddMessage(string Nick, string Text, DateTime dateTime)
+        {
+            Chat.Add(new Message(Nick, Text, dateTime));
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Chat)));
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.LastMessage)));
         }
 

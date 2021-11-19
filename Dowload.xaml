@@ -5,16 +5,16 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TelegramBot_WPF"
       mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="500"
+      d:DesignHeight="300" d:DesignWidth="900"
       Title="Dowload">
 
     
     <Grid>
         <DataGrid x:Name="fileDownloadDG" AutoGenerateColumns="False" ItemsSource="{Binding}">
             <DataGrid.Columns >
-                <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}" Width="60"></DataGridTextColumn>
-                <DataGridTextColumn Header="Имя файла" Binding="{Binding Path=FileName}" Width="150"></DataGridTextColumn>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=FileId}" Width="70"></DataGridTextColumn>
+                <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}" Width="90"></DataGridTextColumn>
+                <DataGridTextColumn Header="Имя файла" Binding="{Binding Path=FileName}" Width="250"></DataGridTextColumn>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=FileId}" Width="170"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         

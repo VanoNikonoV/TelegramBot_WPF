@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 
 namespace TelegramBot_WPF
 {
@@ -58,7 +59,7 @@ namespace TelegramBot_WPF
 
                     if (!Users.Contains(person)) Users.Add(person);
                     {
-                        Users[Users.IndexOf(person)].AddMessage(e.Message.Text);
+                        Users[Users.IndexOf(person)].AddMessage(person.Nick, e.Message.Text, DateTime.Now);
                     }
                 }); 
             }
@@ -113,11 +114,27 @@ namespace TelegramBot_WPF
         {
             long id = Convert.ToInt64(Id);
 
-            string responseMsg = $"Support: {Text}";
+            string responseMsg = Text; //$"Support: {Text}"
 
-            user.AddMessage(responseMsg);
+            user.AddMessage("Support", responseMsg, DateTime.Now);
 
-            bot.SendTextMessageAsync(id, Text);
+            bot.SendTextMessageAsync(id, Text);  
+        }
+
+        public void SendVoice(InputOnlineFile fileVoice, string Id, string expansion)  
+        {
+            // проверить расшырение файла
+            switch (expansion)
+            {
+                case "mp3":
+                bot.SendAudioAsync(Id, fileVoice);
+                    break;
+
+                default:
+                bot.SendAudioAsync(Id, fileVoice);
+                    break;
+            }
+
         }
 
         /// <summary>

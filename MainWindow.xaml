@@ -8,7 +8,7 @@
         Title="TelegramBot" 
         WindowStartupLocation="CenterScreen"
         MinHeight="550" Height="550"
-        MinWidth="600"  Width="800"
+        MinWidth="900"  Width="900"
         Background="White" 
         Source="Home.xaml">
 

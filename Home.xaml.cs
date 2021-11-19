@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Telegram.Bot.Types.InputFiles;
 
 namespace TelegramBot_WPF
 {
@@ -38,6 +39,31 @@ namespace TelegramBot_WPF
             InitializeComponent();
 
             client = new TelegramMessageClient(this);
+
+            //значения по умолчанию для ComboBox
+            this.voiceComboBox.SelectedIndex = 0;
+            this.speedComboBox.SelectedIndex = 0;
+            this.formatComboBox.SelectedIndex = 0;
+            this.emotionComboBox.SelectedIndex = 0;
+
+            txtMsgSend.KeyDown += (s, e) => 
+
+            { 
+                if (e.Key == Key.Return) 
+                {
+                    var curUser = usersList.SelectedItem as TelegramUser; // если null вывести сообщение
+                    if (curUser != null)
+                    {
+                        client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
+                        MessageLog.SaveFile(client.Users);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Выберите пользователя");
+                    }
+                    
+                } 
+            };
         }
 
         private void btnMsgSendClick(object sender, RoutedEventArgs e)
@@ -78,6 +104,7 @@ namespace TelegramBot_WPF
 
             usersList.ItemsSource = client.Users;
 
+            
         }
 
         private void Close()
@@ -124,39 +151,101 @@ namespace TelegramBot_WPF
             this.NavigationService.Navigate(expenseReportPage);
         }
 
-        
-        private void txtMsgSend_MouseEnter(object sender, MouseEventArgs e)
-        {
-            //txtMsgSend.Text = string.Empty;
-            txtMsgSend.Text = "Напишите текс для отправки";
-        }
-
         private void ckick_MsgSendaAndVoice(object sender, RoutedEventArgs e)
         {
-            (int id, int status) info = HttpClientVoice.Request(txtMsgSend.Text);
+            string voice = (this.voiceComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string format = (this.formatComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string speed = string.Empty;
+            string emotion = string.Empty;
 
+            //если установлен параметр по умолчанию вернуть 0 иначе выбранное значени
+            if (this.speedComboBox.SelectedIndex == 0)
+            {
+                speed = "0";
+            }
+            else
+            {
+                speed = (this.speedComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            }
+
+            //если установлен параметр по умолчанию вернуть 0 иначе выбранное значени
+            if (this.emotionComboBox.SelectedIndex == 0)
+            {
+                emotion = "neutral";
+            }
+            else
+            {
+                emotion = (this.emotionComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            }
+             
+            // формирование строки запроса
+            StringBuilder data = new StringBuilder();
+
+            data.AppendFormat("text={0}", txtMsgSend.Text);
+            data.AppendFormat("&voice={0}", voice);
+            data.AppendFormat("&format={0}", format);
+            data.AppendFormat("&speed=1", speed);
+            data.AppendFormat("&pitch=1&emotion={0}", emotion);
+
+            (int id, int status) info = HttpClientVoice.Request(data.ToString());
+
+            // строка запроса
             string id_voice = $"id={info.id}";
 
-            //if (info.status == 1)
-            //{
-            //    InputOnlineFile path = HttpClientVoice.Request_2(id_voice);
+            if (info.status == 1)
+            {
+                (string path, string expansion) = HttpClientVoice.Request_2(id_voice);
 
-            //    string[] text = File.ReadAllLines(@"info2.txt");
+                InputOnlineFile pathFile = new InputOnlineFile(path);
 
-            //    await client.bot.SendDocumentAsync(chatId: e.CallbackQuery.From.Id,
-            //                             path,
-            //                             caption: text[1]);//"Результат"
-            //}
-            //else
-            //{
-            //    await bot.SendTextMessageAsync(chatId: e.CallbackQuery.From.Id, text: "Что-то пошло не так");
-            //}
+                string[] text = File.ReadAllLines(@"info2.txt");
+
+                var curUser = usersList.SelectedItem as TelegramUser;
+                
+                client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
+
+                client.SendVoice(pathFile, TargetSend.Text, expansion);
+            }
+            else
+            {
+                MessageBox.Show("Что то пошло не так!");
+            }
 
         }
 
-        //private void txtMsgSend_MouseLeave(object sender, MouseEventArgs e)
-        //{
-        //    txtMsgSend.Text = "Напишите текс для отправки";
-        //}
+        private void txtMsgSend_MouseEnter(object sender, MouseEventArgs e)
+         {
+             txtMsgSend.Text = string.Empty;
+         }
+
+        private void txtMsgSend_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (!txtMsgSend.IsFocused)
+            {
+                txtMsgSend.Text = "Напишите текс для отправки";
+            }
+           
+        }
+
+        private void VoiceChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string voice = (this.voiceComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            // отпарить в запрос
+        }
+
+        private void FormatChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void SpeedChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void EmotionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }
