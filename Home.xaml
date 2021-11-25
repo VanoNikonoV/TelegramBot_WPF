@@ -18,25 +18,50 @@
         <local:MyConverter x:Key="MyConverter"/>
 
         <DataTemplate x:Key="Sender">
-            <Border BorderBrush="Black" Margin="5" BorderThickness="2" 
-                            CornerRadius="10">
-                <StackPanel    Margin="5" Orientation="Vertical">
-                    <TextBlock Text="{Binding Nick}" Margin="0" 
-                                       FontSize="15" 
-                                       FontStyle="Italic" 
-                                       Foreground="Green"/>
-                    <TextBlock Text="{Binding LastMessage, UpdateSourceTrigger=PropertyChanged}" 
-                                       Margin="0" 
-                                       FontSize="20" 
-                                       TextTrimming="WordEllipsis"></TextBlock>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="35"/>
+                </Grid.ColumnDefinitions>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.3*"/>
+                    <RowDefinition Height="0.7*"/>
+                    <RowDefinition Height="0.2*"/>
+                </Grid.RowDefinitions>
 
-                    <TextBlock Text="{Binding LastDateTime}" 
-                                       Margin="10 0" FontSize="10" 
-                                       Foreground="Gray" 
-                                       TextAlignment="Right"/>
 
-                </StackPanel>
-            </Border>
+                <TextBlock Grid.Column="1" Grid.Row="0" 
+                                   Text="{Binding Nick}" Margin="15,0" 
+                                   FontSize="14" 
+                                   FontStyle="Italic" 
+                                   Foreground="Green" FontWeight="Bold"/>
+                
+                <TextBlock Grid.Column="1" Grid.Row="1"
+                                   Text="{Binding LastMessage, UpdateSourceTrigger=PropertyChanged}" 
+                                   Margin="10,0" 
+                                   FontSize="18" 
+                                   TextTrimming="WordEllipsis"></TextBlock>
+
+                <TextBlock Grid.Column="1" Grid.Row="3"
+                                   Text="{Binding LastDateTime}" 
+                                   Margin="0,5,5,0" FontSize="10" 
+                                   Foreground="Gray" 
+                                   TextAlignment="Right"/>
+
+
+                <Border Width="60" Height="60" BorderBrush="Black"
+                        CornerRadius="30" BorderThickness="1"
+                        Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding PathUserPhoto, UpdateSourceTrigger=PropertyChanged}"></ImageBrush> 
+                    </Border.Background>
+                </Border>
+               
+
+
+            </Grid>
         </DataTemplate>
 
         <Style TargetType="ListBoxItem">
@@ -46,6 +71,9 @@
                     <Setter Property="FontStyle" Value="Italic"/>
                     <Setter Property="HorizontalAlignment" Value="Right"/>
                 </DataTrigger>
+                <!--<DataTrigger Binding="{Binding Path=Time}" Value="Support">
+                    <Setter Property="TextElement.FontSize" Value="10"></Setter>
+                </DataTrigger>-->
             </Style.Triggers>
         </Style>
 
@@ -63,8 +91,8 @@
                 <StackPanel    Margin="5" Orientation="Vertical">
 
                     <TextBlock x:Name="concreteUser_Message"
-                        Text="{Binding ElementName=usersList, Path=SelectadItem.Chat[^1].Text,
-                                       UpdateSourceTrigger=PropertyChanged, diag:PresentationTraceSources.TraceLevel=High}" 
+                        Text="{Binding ElementName=usersList, Path=SelectedItem.Chat[3].Text,
+                                       diag:PresentationTraceSources.TraceLevel=High}" 
                                        Margin="0" 
                                        FontSize="20" 
                                        TextWrapping="Wrap"></TextBlock>
@@ -101,9 +129,9 @@
 
         <Grid.ColumnDefinitions>
             
-            <ColumnDefinition Width="197*" MinWidth="150"/>
+            <ColumnDefinition Width="1.5*" MinWidth="250"/>
             <ColumnDefinition Width="3"/>
-            <ColumnDefinition Width="531*"/>
+            <ColumnDefinition Width="3.5*" MinWidth="500"/>
 
         </Grid.ColumnDefinitions>
 
@@ -117,6 +145,7 @@
                       Grid.Row="1"
                       Grid.RowSpan="3"
                       Background="Aqua"
+                      Width="5"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch" ></GridSplitter>
 
@@ -140,7 +169,7 @@
                  HorizontalAlignment="Stretch"
                  Background="{StaticResource MyGridBrushResource}"
                  IsSynchronizedWithCurrentItem="True"
-                 Margin="5,5.2,4.6,5.4" 
+                 Margin="5" 
                  VerticalAlignment="Stretch" 
                  BorderThickness="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ItemTemplate="{StaticResource Sender}" Grid.ColumnSpan="2">
@@ -151,11 +180,13 @@
                  Grid.Column="3" Grid.Row="1"
                  FontSize="26"
                  Background="{StaticResource MyGridBrushResource}"
-                 Margin="5.2,5.2,5,5"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat,
-                 diag:PresentationTraceSources.TraceLevel=High}">
-            <!--<DataTemplate>
+                 Margin="2,5"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                 ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat}">
+            <!--ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat,
+                 diag:PresentationTraceSources.TraceLevel=High}"-->
+            <!--<ListBox.ItemTemplate>
+            <DataTemplate>
                 <Border x:Name="border" BorderBrush="Black" Margin="5" BorderThickness="2" 
                             CornerRadius="10">
                     <StackPanel    Margin="5" Orientation="Vertical">
@@ -166,8 +197,8 @@
                                    TextWrapping="Wrap"></TextBlock>
                     </StackPanel>
                 </Border>
-            </DataTemplate>-->
-
+            </DataTemplate>
+            </ListBox.ItemTemplate>-->
 
             <!--Path=SelectedItem.Messages
             ItemsSource="{Binding ElementName=usersList, Path = SelectedItem.Messages}">
@@ -237,23 +268,19 @@
                 
                 <Label Grid.Row="2" Grid.ColumnSpan="3"  HorizontalAlignment="Center">Параметры озвучки:</Label>
 
+                <!--Параметры озвучки-->
                 <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
-                    
-                    <ComboBox x:Name="voiceComboBox" SelectionChanged="VoiceChanged" 
+
+                    <ComboBox x:Name="voiceComboBox"  
                               MinWidth="130" Margin="10,10,10,10">
-                        <ComboBoxItem Content="Владимир"/>
+                        <ComboBoxItem Content="Захар"/>
                         <ComboBoxItem Content="Омаж"/>
                         <ComboBoxItem Content="Оксана"/>
                         <ComboBoxItem Content="Эрмил"/>
                         <ComboBoxItem Content="Бот Татьяна"/>
                     </ComboBox>
-                    <ComboBox x:Name="formatComboBox" SelectionChanged="FormatChanged" 
-                              MinWidth="80" Margin="0,10,10,9.6">
-                        <ComboBoxItem Content="mp3"/>
-                        <ComboBoxItem Content="wav"/>
-                    </ComboBox>
 
-                    <ComboBox x:Name="speedComboBox" SelectionChanged="SpeedChanged" 
+                    <ComboBox x:Name="speedComboBox" 
                               MinWidth="100" Margin="0,10,10,10">
                         <ComboBoxItem Content="Скорость"/>
                         <ComboBoxItem Content="0.1"/>
@@ -262,8 +289,8 @@
                         <ComboBoxItem Content="2"/>
                     </ComboBox>
 
-                    <ComboBox x:Name="emotionComboBox" SelectionChanged="EmotionChanged" 
-                              MinWidth="240" Margin="0,10,10,10">
+                    <ComboBox x:Name="emotionComboBox" 
+                              MinWidth="250" Margin="0,10,10,10">
                         <ComboBoxItem Content="Эмоциональный окрас"/> <!--neutral-->
                         <ComboBoxItem Content="good"/>
                         <ComboBoxItem Content="evil"/>

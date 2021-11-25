@@ -24,12 +24,19 @@ namespace TelegramBot_WPF
 
         public ObservableCollection<InfoFiles> InfoFiles { get; set; }
 
+        private string folderUserPhoto = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image\\");
+        //private string UserPhotoImage { get; set; }  // поле?
+
         [Obsolete]
         public TelegramMessageClient(Home W, string PathToken = @"token.txt")
         {
             this.Users = new ObservableCollection<TelegramUser>();
 
             this.InfoFiles = new ObservableCollection<InfoFiles>();
+
+            //this.UserPhotoImage = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image\\");
+
+            Directory.CreateDirectory(folderUserPhoto);
 
             this.window = W;
 
@@ -45,10 +52,6 @@ namespace TelegramBot_WPF
         {
             string text = $"{DateTime.Now.ToLongTimeString()}: {e.Message.Chat.FirstName} {e.Message.Chat.Id} {e.Message.Text}";
 
-            Debug.WriteLine(text);
-
-            //UserProfilePhotos u = bot.GetUserProfilePhotosAsync(e.Message.Chat.Id, 1, 1);
-
             if (e.Message.Type == MessageType.Text)
             {
                 var messageText = e.Message.Text;
@@ -57,7 +60,21 @@ namespace TelegramBot_WPF
                 {
                     var person = new TelegramUser(e.Message.Chat.FirstName, e.Message.Chat.Id);
 
-                    if (!Users.Contains(person)) Users.Add(person);
+                    if (!Users.Contains(person))
+
+                    {   // Фото пользователя
+                        var userPhoto = bot.GetUserProfilePhotosAsync(e.Message.From.Id).Result;
+                        // если у пользователя есть фото то скачать и установить фото
+                        if (userPhoto.TotalCount != 0)
+                        {
+                            DownLoadUserPhoto(userPhoto.Photos[0][2].FileId, e.Message.Chat.Id);
+                            //перезаписываю свойство
+                            person.PathUserPhoto = this.folderUserPhoto + e.Message.Chat.Id + ".jpg";
+                        }
+                        // иначе добавить с параметрам по умолчанию
+                        Users.Add(person);
+                        
+                    } 
                     {
                         Users[Users.IndexOf(person)].AddMessage(person.Nick, e.Message.Text, DateTime.Now);
                     }
@@ -110,6 +127,21 @@ namespace TelegramBot_WPF
             #endregion
         }
 
+        private async void DownLoadUserPhoto(string fileId, long id)
+        {
+            string path = this.folderUserPhoto + id + ".jpg";
+
+            var file = await bot.GetFileAsync(fileId);
+
+            FileStream fs = new FileStream(path, FileMode.Create, FileAccess.ReadWrite);
+
+            await bot.DownloadFileAsync(file.FilePath, fs);
+          
+            fs.Close();
+
+            fs.Dispose();
+        }
+
         public void SendMessage(string Text, string Id, TelegramUser user)
         {
             long id = Convert.ToInt64(Id);
@@ -121,20 +153,9 @@ namespace TelegramBot_WPF
             bot.SendTextMessageAsync(id, Text);  
         }
 
-        public void SendVoice(InputOnlineFile fileVoice, string Id, string expansion)  
+        public void SendVoice(InputOnlineFile fileVoice, string Id, string name)  
         {
-            // проверить расшырение файла
-            switch (expansion)
-            {
-                case "mp3":
-                bot.SendAudioAsync(Id, fileVoice);
-                    break;
-
-                default:
-                bot.SendAudioAsync(Id, fileVoice);
-                    break;
-            }
-
+            bot.SendAudioAsync(Id, fileVoice, caption: name);
         }
 
         /// <summary>

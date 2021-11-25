@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using Newtonsoft.Json;
 
 
@@ -11,23 +12,22 @@ namespace TelegramBot_WPF
     /// </summary>
     public class TelegramUser : INotifyPropertyChanged, IEquatable<TelegramUser>
     {
+        // путь к папке с фотографиями пользоватей
+        private string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image\\");
 
-        // Фото пользователя
-        // var userPhoto = bot.GetUserProfilePhotosAsync(message.From.Id).Result;
-        // var file = await bot.GetFileAsync(userPhoto.Photos[0][userPhoto.Photos.Length - 1].FileId);
-        // DownLoad(userPhoto.Photos[0][userPhoto.Photos.Length - 1].FileId, "Иван");
-
-        public TelegramUser(string Nickname, long ChatId)
+        public TelegramUser(string Nickname, long ChatId, string noPhoto = @"NoPhoto.png")
         {
             this.nick = Nickname;
             this.id = ChatId;
             this.Chat = new ObservableCollection<Message>();
+            this.pathUserPhoto = path + noPhoto;
             //Messages = new ObservableCollection<string>();
             //this.Time = DateTime.Now;
         }
 
         private string nick;
 
+        [JsonProperty("nick")]
         public string Nick
         {
             get { return this.nick; }
@@ -40,6 +40,7 @@ namespace TelegramBot_WPF
 
         private long id;
 
+        [JsonProperty("id user")]
         public long Id
         {
             get { return this.id; }
@@ -48,6 +49,17 @@ namespace TelegramBot_WPF
                 this.id = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Id)));
             }
+        }
+
+        string pathUserPhoto;
+        //ссылка на фото пользователя
+        [JsonProperty("pathUserPhoto")]
+        public string PathUserPhoto 
+        {
+            get { return this.pathUserPhoto; }
+
+            set { this.pathUserPhoto = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathUserPhoto)));} 
         }
         
         [JsonIgnore]
@@ -61,6 +73,7 @@ namespace TelegramBot_WPF
             }
         }
 
+        [JsonIgnore]
         public string LastDateTime 
         { 
             get
@@ -92,6 +105,7 @@ namespace TelegramBot_WPF
         /// </summary>
         //public ObservableCollection<string> Messages { get; set; }
 
+        [JsonProperty("chat")]
         public ObservableCollection<Message> Chat { get; set; }
 
         /// <summary>

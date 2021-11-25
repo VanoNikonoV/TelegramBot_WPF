@@ -31,7 +31,9 @@ namespace TelegramBot_WPF
 
         private FileSaveAndLoade FileDownload;
 
-        TelegramMessageClient client;
+        private TelegramMessageClient client;
+
+       // private VoiceOver VC = new VoiceOver(); //@"https://zvukogram.com/index.php?r=api/"
 
         [Obsolete]
         public Home()
@@ -43,7 +45,6 @@ namespace TelegramBot_WPF
             //значения по умолчанию для ComboBox
             this.voiceComboBox.SelectedIndex = 0;
             this.speedComboBox.SelectedIndex = 0;
-            this.formatComboBox.SelectedIndex = 0;
             this.emotionComboBox.SelectedIndex = 0;
 
             txtMsgSend.KeyDown += (s, e) => 
@@ -101,9 +102,7 @@ namespace TelegramBot_WPF
             }
 
             usersList.Items.Clear();
-
             usersList.ItemsSource = client.Users;
-
             
         }
 
@@ -154,7 +153,6 @@ namespace TelegramBot_WPF
         private void ckick_MsgSendaAndVoice(object sender, RoutedEventArgs e)
         {
             string voice = (this.voiceComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            string format = (this.formatComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string speed = string.Empty;
             string emotion = string.Empty;
 
@@ -181,34 +179,50 @@ namespace TelegramBot_WPF
             // формирование строки запроса
             StringBuilder data = new StringBuilder();
 
-            data.AppendFormat("text={0}", txtMsgSend.Text);
+            data.AppendFormat(@"https://zvukogram.com/index.php?r=api/");
+            data.AppendFormat("longtext&token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&&text={0}", txtMsgSend.Text);
             data.AppendFormat("&voice={0}", voice);
-            data.AppendFormat("&format={0}", format);
-            data.AppendFormat("&speed=1", speed);
+            data.AppendFormat("&format=mp3");
+            data.AppendFormat("&speed={0}", speed);
             data.AppendFormat("&pitch=1&emotion={0}", emotion);
 
-            (int id, int status) info = HttpClientVoice.Request(data.ToString());
+            (int id, string status) info = VoiceOver.ChallengeRequestOne(data.ToString());
 
-            // строка запроса
-            string id_voice = $"id={info.id}";
+            data.Clear();
+            // вторая строка запроса
+            data.AppendFormat(@"https://zvukogram.com/index.php?r=api/");
+            data.Append("result&token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&");
 
-            if (info.status == 1)
+            data.AppendFormat("id={0}",info.id);//string id_voice = $"id={info.id}";
+
+            int temp = Convert.ToInt32(info.status);
+
+            if (temp == 1)
             {
-                (string path, string expansion) = HttpClientVoice.Request_2(id_voice);
+                (string path, string expansion) = VoiceOver.ChallengeRequestTwo(data.ToString());
 
                 InputOnlineFile pathFile = new InputOnlineFile(path);
 
-                string[] text = File.ReadAllLines(@"info2.txt");
+                #region Имя файла - вариант
+                //string temp = txtMsgSend.Text;
+
+                //int position = temp.IndexOf(" ");
+
+                //string name =  temp.Substring(0,position) +"."+ expansion;
+                #endregion
+                string name = info.id + "." + expansion;
 
                 var curUser = usersList.SelectedItem as TelegramUser;
-                
+
                 client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
 
-                client.SendVoice(pathFile, TargetSend.Text, expansion);
+                MessageLog.SaveFile(client.Users);
+
+                client.SendVoice(pathFile, TargetSend.Text, name);
             }
             else
             {
-                MessageBox.Show("Что то пошло не так!");
+                MessageBox.Show("Что то пошло не так!", caption: "http");
             }
 
         }
@@ -225,27 +239,6 @@ namespace TelegramBot_WPF
                 txtMsgSend.Text = "Напишите текс для отправки";
             }
            
-        }
-
-        private void VoiceChanged(object sender, SelectionChangedEventArgs e)
-        {
-            string voice = (this.voiceComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            // отпарить в запрос
-        }
-
-        private void FormatChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void SpeedChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void EmotionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
     }
 }
