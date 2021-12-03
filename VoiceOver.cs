@@ -39,6 +39,20 @@ namespace TelegramBot_WPF
         //{
         //    client.BaseAddress = new Uri(baseAdress);
         //}
+
+        /// <summary>
+        /// Отправляет запрос для постановки задачи на озвучку текста.
+        /// </summary>
+        /// <param name="request">Параметры запроса</param>
+        /// <returns>"id" - уникальный идентификатор озвучки 
+        /// Одино из вариантов в зависимость от полученного статуса:
+        ///          "status" - текущий статус озвучки
+        ///          "error" - информацию об ощибке
+        ///     
+        /// Доступны 3 статуса значения:
+        ///     0  - в процессе
+        ///     1  - завершен успешно
+        ///    -1  - ошибка </returns>
         public static (int id, string status) ChallengeRequestOne(string request)
         {
             Task<(int id, string status)> info = Task.Run(() => RequestOne(request));
@@ -48,6 +62,14 @@ namespace TelegramBot_WPF
             return (temp.id, temp.status);
         }
 
+        /// <summary>
+        /// Отправляет запрос, чтобы узнать результат озвучки и путь к файлу
+        /// </summary>
+        /// <param name="request">Параметры запроса</param>
+        /// <returns>
+        /// path - путь к файлу
+        /// format - формат файла
+        /// </returns>
         public static (string path, string format) ChallengeRequestTwo(string request)
         {
             Task<(string path, string format)> info = Task.Run(() => RequestTwo(request));
@@ -62,12 +84,15 @@ namespace TelegramBot_WPF
         /// </summary>
         /// <param name="request">Параметры запроса</param>
         /// <returns>"id" - уникальный идентификатор озвучки, 
-        ///          "status" - текущий статус озвучки. 
-        ///     Доступны 3 значения:
+        ///          "path" - путь к файлу если status = 1
+        ///          "status" = 0 - текущий статус озвучки, либо
+        ///          "error" - в случаи ощибки status = -1.
+        ///     
+        /// Доступны 3 статуса значения:
         ///     0  - в процессе
         ///     1  - завершен успешно
         ///    -1  - ошибка </returns>
-        static async Task<(int id, string status)> RequestOne(string request)
+        static async Task<(int id, string path)> RequestOne(string request)
         {
                 HttpResponseMessage response = (await client.GetAsync(request)).EnsureSuccessStatusCode();
 
@@ -83,11 +108,9 @@ namespace TelegramBot_WPF
 
                     string error = Convert.ToString(JObject.Parse(result)["error"]);
 
-                    if (status == "-1")
-                    {
-                        return (0, error);
-                    }
-                    return (id, status);
+                    if (status == "-1") return (0, error);
+
+                    else return (id, status);   
                 }
             
         }
@@ -114,14 +137,12 @@ namespace TelegramBot_WPF
                 var result = sr.ReadToEnd();
 
                 int status = Convert.ToInt32(JObject.Parse(result)["status"]);
-
-                if (status == 0)
-                {
-                    Thread.Sleep(6000);
-                    await RequestTwo(request);
-                    Debug.WriteLine($"Статус {status}");
-
-                }
+                
+                //if (status == 0)
+                //{
+                //    Thread.Sleep(6000);
+                //    await RequestTwo(request);
+                //}
                 if ((int)status == 1)
                 {
                     path = Convert.ToString(JObject.Parse(result)["file"]);

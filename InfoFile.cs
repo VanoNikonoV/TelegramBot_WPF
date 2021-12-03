@@ -14,7 +14,7 @@ namespace TelegramBot_WPF
         /// <summary>
         /// Номер записи
         /// </summary>
-        public int Number { get; }
+        public int Number { get; set; }
         /// <summary>
         /// ID скаченого файла
         /// </summary>
@@ -23,12 +23,10 @@ namespace TelegramBot_WPF
         /// Имя скаченого файла
         /// </summary>
         public string FileName { get; set; }
-        public InfoFiles(string fileId, string fileName) => 
-                        (this.FileId,   this.FileName,  this.Number) = (fileId, fileName, ++count);
-        /// <summary>
-        /// Номер записи
-        /// </summary>
-        static int count = -1;
+
+        public InfoFiles(string fileId, string fileName, int count) => 
+                        (this.FileId,   this.FileName,  this.Number) = (fileId, fileName, count);
+
 
     }
 }

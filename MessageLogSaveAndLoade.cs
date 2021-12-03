@@ -11,14 +11,17 @@ namespace TelegramBot_WPF
 {
     class MessageLogSaveAndLoade : IFilesSource<TelegramUser>
     {
-        // путь к файлу
-        public readonly string path;
+        private readonly string path;
 
         public MessageLogSaveAndLoade(string path)
         {
             this.path = path;
         }
 
+        /// <summary>
+        /// Десерилазует файл по указаному пути
+        /// </summary>
+        /// <returns></returns>
         public ObservableCollection<TelegramUser> LoadFile()
         {
             var fileExists = File.Exists(path);
@@ -34,6 +37,12 @@ namespace TelegramBot_WPF
                 return JsonConvert.DeserializeObject<ObservableCollection<TelegramUser>>(fileText); 
             }
         }
+
+        /// <summary>
+        /// Десерилазует файл по указаному пути
+        /// </summary>
+        /// <param name="pathOfUser">путь к сохраняемому файлу</param>
+        /// <returns></returns>
         public ObservableCollection<TelegramUser> LoadFile(string pathOfUser)
         {
             using (var reader = File.OpenText(pathOfUser))
@@ -43,27 +52,36 @@ namespace TelegramBot_WPF
             }
         }
 
-        public void SaveFile(ObservableCollection<TelegramUser> InfoFile)
+        /// <summary>
+        /// Сериализует коллекцию в файл .json
+        /// </summary>
+        /// <param name="User">Коллеция для сериализации</param>
+        public void SaveFile(ObservableCollection<TelegramUser> User)
         {
             using (StreamWriter writer = File.CreateText(path))
             {
-                string output = JsonConvert.SerializeObject(InfoFile);
+                string output = JsonConvert.SerializeObject(User);
                 writer.Write(output);
             }
         }
-        public void SaveFile(ObservableCollection<TelegramUser> InfoFile, string name)
-        {
-           string output = JsonConvert.SerializeObject(InfoFile);
 
-           File.WriteAllText(name, output);
+        /// <summary>
+        /// Сериализует коллекцию в файл .json
+        /// </summary>
+        /// <param name="Message">Коллеция для сериализации</param>
+        /// <param name="path">путь к сохраняемому файлу</param>
+        public void SaveMessageUser (ObservableCollection<Message> Message, string path)
+        {
+            string output = JsonConvert.SerializeObject(Message);
+
+            File.WriteAllText(path, output);
         }
-        
 
     }
 
     interface IFilesSource<T>
     {
-        void SaveFile(ObservableCollection<T> InfoFile);
+        void SaveFile(ObservableCollection<T> User);
         ObservableCollection<T> LoadFile();
     }
 

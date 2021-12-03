@@ -13,8 +13,8 @@
         <DataGrid x:Name="fileDownloadDG" AutoGenerateColumns="False" ItemsSource="{Binding}">
             <DataGrid.Columns >
                 <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}" Width="90"></DataGridTextColumn>
-                <DataGridTextColumn Header="Имя файла" Binding="{Binding Path=FileName}" Width="250"></DataGridTextColumn>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=FileId}" Width="170"></DataGridTextColumn>
+                <DataGridTextColumn Header="Имя файла" Binding="{Binding Path=FileName}" Width="*"></DataGridTextColumn>
+                <DataGridTextColumn Header="ID" Binding="{Binding Path=FileId}" Width="*"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         

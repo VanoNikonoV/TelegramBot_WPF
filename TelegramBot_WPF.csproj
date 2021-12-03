@@ -176,5 +176,23 @@
   <ItemGroup>
     <Resource Include="Image\NoPhoto.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\Save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\Open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\download.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\Send.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\Voice.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\sound.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

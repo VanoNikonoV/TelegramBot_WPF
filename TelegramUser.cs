@@ -12,17 +12,12 @@ namespace TelegramBot_WPF
     /// </summary>
     public class TelegramUser : INotifyPropertyChanged, IEquatable<TelegramUser>
     {
-        // путь к папке с фотографиями пользоватей
-        private string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image\\");
-
-        public TelegramUser(string Nickname, long ChatId, string noPhoto = @"NoPhoto.png")
+        public TelegramUser(string Nickname, long ChatId)
         {
             this.nick = Nickname;
             this.id = ChatId;
             this.Chat = new ObservableCollection<Message>();
-            this.pathUserPhoto = path + noPhoto;
-            //Messages = new ObservableCollection<string>();
-            //this.Time = DateTime.Now;
+            this.InfoDowloadFiles = new ObservableCollection<InfoFiles>(); 
         }
 
         private string nick;
@@ -51,17 +46,36 @@ namespace TelegramBot_WPF
             }
         }
 
-        string pathUserPhoto;
-        //ссылка на фото пользователя
-        [JsonProperty("pathUserPhoto")]
+        private string folderUserPhoto = TelegramMessageClient.folderUserPhoto;
+
+        /// <summary>
+        /// Полная ссылка на фото пользователя (пременная часть + имя файла)
+        /// </summary>
+        [JsonIgnore]
         public string PathUserPhoto 
         {
-            get { return this.pathUserPhoto; }
+            get {
+                    string p = folderUserPhoto + this.id + ".jpg";
 
-            set { this.pathUserPhoto = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathUserPhoto)));} 
+                    bool flag = File.Exists(p);
+
+                    if (flag)
+                    { 
+                        return folderUserPhoto + this.id + ".jpg";
+                    }
+                    else
+                    { 
+                        return folderUserPhoto + "NoPhoto.png";
+                    }
+
+                } //pathUserPhoto + fileName = id + .jpg
+
+            //set { 
+            //    this.pathUserPhoto = value;
+            //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathUserPhoto)));
+            //    } 
         }
-        
+
         [JsonIgnore]
         public string LastMessage
         {
@@ -83,13 +97,7 @@ namespace TelegramBot_WPF
                 return Chat[i].Time.ToString();
             }
                 
-        }
-
-        //public string AllMessage { 
-
-        //    get { return this.Chat[].Text;  }
-
-        //}
+        }        
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -101,10 +109,8 @@ namespace TelegramBot_WPF
         public bool Equals(TelegramUser other) => other.Id == this.id;
 
         /// <summary>
-        /// Коллекция всех сообщений
+        /// Коллекция для хранения информации о полученных и отправлнных сообщениях
         /// </summary>
-        //public ObservableCollection<string> Messages { get; set; }
-
         [JsonProperty("chat")]
         public ObservableCollection<Message> Chat { get; set; }
 
@@ -119,6 +125,24 @@ namespace TelegramBot_WPF
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Chat)));
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.LastMessage)));
+        }
+
+        /// <summary>
+        /// Коллекция для хранения информации о скачанных файлах
+        /// </summary>
+        [JsonProperty("infoFiles")]
+        public ObservableCollection<InfoFiles> InfoDowloadFiles { get; set; }
+
+        /// <summary>
+        /// Добавляет информацию об отправленных пользователем файлах 
+        /// </summary>
+        /// <param name="fileId">ID скаченого файла</param>
+        /// <param name="fileName">Имя скаченого файла</param>
+        public void AddFile(string fileId, string fileName)
+        {
+            InfoDowloadFiles.Add(new InfoFiles(fileId, fileName, InfoDowloadFiles.Count));
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.InfoDowloadFiles)));
         }
 
     }

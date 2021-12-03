@@ -9,59 +9,49 @@
       mc:Ignorable="d" 
       d:DesignHeight="550" d:DesignWidth="900"
       Title="Home"
-      Background="White"
+      Background="AliceBlue"
       Loaded="Window_Loaded">
-
 
     <Page.Resources>
 
         <local:MyConverter x:Key="MyConverter"/>
 
         <DataTemplate x:Key="Sender">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="65"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="35"/>
-                </Grid.ColumnDefinitions>
-                
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="0.3*"/>
-                    <RowDefinition Height="0.7*"/>
-                    <RowDefinition Height="0.2*"/>
-                </Grid.RowDefinitions>
+            <DockPanel LastChildFill="True">
+                <Border x:Name="userPhoto" DockPanel.Dock="Left"
+                        Width="60" Height="60" BorderBrush="Black"
+                        CornerRadius="30" BorderThickness="1">
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding PathUserPhoto, UpdateSourceTrigger=PropertyChanged}"></ImageBrush>
+                    </Border.Background>
+                </Border>
 
-
-                <TextBlock Grid.Column="1" Grid.Row="0" 
+                <Grid DockPanel.Dock="Right" ShowGridLines="False">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.3*"/>
+                        <RowDefinition Height="0.7*"/>
+                        <RowDefinition Height="0.2*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock     Grid.Row="0" 
                                    Text="{Binding Nick}" Margin="15,0" 
                                    FontSize="14" 
                                    FontStyle="Italic" 
-                                   Foreground="Green" FontWeight="Bold"/>
-                
-                <TextBlock Grid.Column="1" Grid.Row="1"
+                                   Foreground="Red" FontWeight="Bold"/>
+
+                    <TextBlock     Grid.Row="1"
                                    Text="{Binding LastMessage, UpdateSourceTrigger=PropertyChanged}" 
                                    Margin="10,0" 
                                    FontSize="18" 
                                    TextTrimming="WordEllipsis"></TextBlock>
 
-                <TextBlock Grid.Column="1" Grid.Row="3"
+                    <TextBlock     Grid.Row="3" Grid.ColumnSpan="2"
                                    Text="{Binding LastDateTime}" 
                                    Margin="0,5,5,0" FontSize="10" 
-                                   Foreground="Gray" 
+                                   Foreground="Gray" HorizontalAlignment="Right"
                                    TextAlignment="Right"/>
 
-
-                <Border Width="60" Height="60" BorderBrush="Black"
-                        CornerRadius="30" BorderThickness="1"
-                        Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
-                    <Border.Background>
-                        <ImageBrush ImageSource="{Binding PathUserPhoto, UpdateSourceTrigger=PropertyChanged}"></ImageBrush> 
-                    </Border.Background>
-                </Border>
-               
-
-
-            </Grid>
+                </Grid>
+            </DockPanel>
         </DataTemplate>
 
         <Style TargetType="ListBoxItem">
@@ -111,77 +101,66 @@
                 </StackPanel>
             </Border>
         </DataTemplate>
-        
+
     </Page.Resources>
 
     <!--Это информирует элемент управления Wi о том какие обработчики вызывать
     при поступлении команд Open Save-->
     <Page.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Open"
-                        Executed="OpenCmdExecuted"
-                        CanExecute="OpenCmdCanExecute"/>
         <CommandBinding Command="ApplicationCommands.Save"
                         Executed="SaveCmdExecuted"
                         CanExecute="SaveCmdCanExecute"/>
     </Page.CommandBindings>
 
-    <Grid ShowGridLines="False" >
+    <Grid ShowGridLines="False">
 
         <Grid.ColumnDefinitions>
-            
             <ColumnDefinition Width="1.5*" MinWidth="250"/>
             <ColumnDefinition Width="3"/>
-            <ColumnDefinition Width="3.5*" MinWidth="500"/>
-
+            <ColumnDefinition Width="3.5*" MinWidth="560"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="1.6*"/>
-            <RowDefinition Height="1.4*"/>
+            <RowDefinition Height="220"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
         <GridSplitter Grid.Column="1"
-                      Grid.Row="1"
+                      Grid.Row="0"
                       Grid.RowSpan="3"
-                      Background="Aqua"
+                      Background ="DarkRed"
                       Width="5"
+                      Opacity="0.5"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch" ></GridSplitter>
 
-        <DockPanel>
-            <Menu Grid.Column="0" Grid.ColumnSpan="3" 
-              HorizontalAlignment="Left"
-              BorderBrush="Black"
-              FontSize="20">
-                <MenuItem Header="Файл">
-                    <MenuItem Command="ApplicationCommands.Open"></MenuItem>
-                    <MenuItem Command="ApplicationCommands.Save"></MenuItem>
-                    <Separator/>
-                </MenuItem>
-            </Menu>
-        </DockPanel>
+        <Menu Grid.Column="0" Grid.ColumnSpan="3" 
+              Visibility="Collapsed">
+            <MenuItem Header="Файл">
+                <MenuItem Command="ApplicationCommands.Save"></MenuItem>
+                <Separator/>
+            </MenuItem>
+        </Menu>
 
         <!--Отправитель-->
         <ListBox x:Name="usersList"
-                 Grid.Column="0" Grid.Row="1"
-                 Grid.RowSpan ="2"
-                 HorizontalAlignment="Stretch"
-                 Background="{StaticResource MyGridBrushResource}"
+                 Grid.Column="0" Grid.Row="0"
+                 Grid.RowSpan ="3" Grid.ColumnSpan="2"
                  IsSynchronizedWithCurrentItem="True"
-                 Margin="5" 
-                 VerticalAlignment="Stretch" 
+                 Margin="0,0,5,0" HorizontalContentAlignment="Stretch"
                  BorderThickness="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemTemplate="{StaticResource Sender}" Grid.ColumnSpan="2">
-        </ListBox>
+                 ItemTemplate="{StaticResource Sender}"  Background="AliceBlue"/>
 
         <!--Получатель сообщения-->
         <ListBox x:Name="concreteUser"
-                 Grid.Column="3" Grid.Row="1"
+                 Grid.Column="3" Grid.Row="0" Grid.RowSpan="2"
                  FontSize="26"
                  Background="{StaticResource MyGridBrushResource}"
-                 Margin="2,5"
+                 Margin="2,0,5,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
                  ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat}">
             <!--ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat,
                  diag:PresentationTraceSources.TraceLevel=High}"-->
@@ -199,31 +178,40 @@
                 </Border>
             </DataTemplate>
             </ListBox.ItemTemplate>-->
-
             <!--Path=SelectedItem.Messages
             ItemsSource="{Binding ElementName=usersList, Path = SelectedItem.Messages}">
             ItemTemplate="{StaticResource Chat}"-->
         </ListBox>
-
+        
+        <StatusBar Grid.Row="4" Grid.ColumnSpan="3">
+            <StatusBarItem>
+                <TextBlock x:Name="statBarText" 
+                           Text="Здесь будет подсказка" 
+                           FontSize="12" Margin="10,0,0,0">
+                </TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+        
+        <!--Меню-->
         <GroupBox FontSize="20"
-                  Header="Отправка сообщения"
                   HorizontalAlignment="Stretch" 
                   VerticalAlignment="Stretch"
-                  
-                  Grid.Column="3" Grid.Row="2" Margin="0.2,0,0,0.4">
+                  Grid.Column="3" Grid.Row="2" 
+                  Margin="3" 
+                  Background="#FFC1E2AC" >
 
-            <Grid VerticalAlignment="Stretch">
+            <Grid VerticalAlignment="Stretch" ShowGridLines="False">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="174*"/>
+                    <ColumnDefinition Width="175*"/>
                     <ColumnDefinition Width="210*"/>
-                    <ColumnDefinition Width="50*"/>
-                    
+                    <ColumnDefinition Width="50"/>
                 </Grid.ColumnDefinitions>
+                
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="60"/>
                     <RowDefinition Height="50"/>
-                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="50"/>
                     <RowDefinition Height="50"/>
                 </Grid.RowDefinitions>
 
@@ -231,48 +219,76 @@
                            Text="{Binding ElementName=usersList, Path=SelectedItem.Id}"
                            Visibility="Collapsed"/>
 
-
+               
                 <TextBox x:Name="txtMsgSend"
                          Grid.Column="0" Grid.Row="0" 
-                         Grid.ColumnSpan="3"
+                         Grid.ColumnSpan="2" Grid.RowSpan="2"
                          Text="Напишите текс для отправки"
+                         Padding="3"
                          BorderThickness="2"
-                         FontSize="20"
+                         FontSize="18" Margin="5,10,5,0"
                          MaxLength="250"
                          TextWrapping="Wrap" 
                          Opacity="0.5"  
                          MouseEnter="txtMsgSend_MouseEnter" 
-                         MouseLeave="txtMsgSend_MouseLeave" MinHeight="60"/>
+                         MouseLeave="txtMsgSend_MouseLeave"/>
 
                 <Button x:Name="btnMsgSend" 
-                        Grid.Column="0" Grid.Row="1"                    
-                        FontSize="20"
-                        Content="Отправить" 
-                        Click="btnMsgSendClick"
-                        Background="AntiqueWhite" Margin="1" />
+                        Grid.Column="3" Grid.Row="0"                    
+                        Click="MsgSend_buttonClick" 
+                        Background="{x:Null}" BorderBrush="{x:Null}" 
+                        MouseEnter="MouseEnter_Send" 
+                        MouseLeave="MouseLeave_SatusBar">
+                    <Image Source="Image/Send.png" Width="48"
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"/>
+                </Button>
+
+                <Button x:Name="btnSave" 
+                        Grid.Column="2" Grid.Row="2"
+                        Background="{x:Null}" Margin="1"
+                        Click="Save_Click" BorderBrush="{x:Null}"
+                        MouseLeave="MouseLeave_SatusBar"
+                        MouseEnter="MouseEnter_Save">
+                    <Image Source="Image/Save.png" 
+                           Cursor="Hand" 
+                           Height="48" Width="48" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"/>
+                </Button>
 
                 <Button x:Name="btnMsgSendaAndVoice" 
-                        Grid.Column="1" Grid.Row="1"                    
-                        FontSize="20"
-                        Content="Отправить и озвучить" 
-                        Click="ckick_MsgSendaAndVoice"
-                        Background="AntiqueWhite" Margin="1" />
+                        Grid.Column="2" Grid.Row="4"                     
+                        Click="MsgSendaAndVoice_buttonClick" 
+                        Background="{x:Null}" BorderBrush="{x:Null}" 
+                        MouseEnter="MouseEnter_SendaAndVoice" 
+                        MouseLeave="MouseLeave_SatusBar">
+                    <Image Source="Image/Voice.png" 
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" ></Image>
+                </Button>
 
                 <Button x:Name="btnDownload"
                         Grid.Column="2" Grid.Row="1"
-                        HorizontalAlignment="Left"
-                        Background="AntiqueWhite" Click="download_Click" Margin="1">
-                    <Image Source="download.jpg" Stretch="Fill"
-                           Width="45" Cursor="ArrowCD" Height="40"></Image>
+                        Background="{x:Null}" BorderBrush="{x:Null}"
+                        Click="download_Click" 
+                        MouseEnter="MouseEnter_Download" 
+                        MouseLeave="MouseLeave_SatusBar" >
+                    <Image Source="Image/Open.png"  Cursor="ArrowCD" 
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Center"/>
                 </Button>
-                
-                <Label Grid.Row="2" Grid.ColumnSpan="3"  HorizontalAlignment="Center">Параметры озвучки:</Label>
+
+                <Label Grid.Row="2" Grid.ColumnSpan="3" 
+                       HorizontalAlignment="Center" VerticalAlignment="Bottom">Параметры озвучки:</Label>
 
                 <!--Параметры озвучки-->
-                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Orientation="Horizontal" HorizontalAlignment="Right" >
 
-                    <ComboBox x:Name="voiceComboBox"  
-                              MinWidth="130" Margin="10,10,10,10">
+                    <ComboBox x:Name="voiceComboBox"   
+                              MinWidth="130" Margin="5,5,5,10"
+                              SelectionChanged="SelecChanged_Voice" FontSize="18" >
                         <ComboBoxItem Content="Захар"/>
                         <ComboBoxItem Content="Омаж"/>
                         <ComboBoxItem Content="Оксана"/>
@@ -281,8 +297,8 @@
                     </ComboBox>
 
                     <ComboBox x:Name="speedComboBox" 
-                              MinWidth="100" Margin="0,10,10,10">
-                        <ComboBoxItem Content="Скорость"/>
+                              MinWidth="100" Margin="0,5,5,10" FontSize="18">
+                        <ComboBoxItem Content="Скорость"/><!--0-->
                         <ComboBoxItem Content="0.1"/>
                         <ComboBoxItem Content="0.5"/>
                         <ComboBoxItem Content="1.5"/>
@@ -290,14 +306,14 @@
                     </ComboBox>
 
                     <ComboBox x:Name="emotionComboBox" 
-                              MinWidth="250" Margin="0,10,10,10">
-                        <ComboBoxItem Content="Эмоциональный окрас"/> <!--neutral-->
+                              MinWidth="230" Margin="0,5,5,10" FontSize="18">
+                        <ComboBoxItem Content="Эмоциональный окрас"/><!--neutral-->
                         <ComboBoxItem Content="good"/>
                         <ComboBoxItem Content="evil"/>
                     </ComboBox>
-                    
-                </StackPanel>
 
+                </StackPanel>
+                
             </Grid>
         </GroupBox>
     </Grid>
