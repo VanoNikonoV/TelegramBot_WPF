@@ -1,15 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TelegramBot_WPF
 {
     public class Message : INotifyPropertyChanged
-
     {
         private string text;
 
@@ -28,21 +23,11 @@ namespace TelegramBot_WPF
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Text)));
             }
         }
-        
-        public Message(string nick, string text, DateTime dateTime) 
-        {
-            this.Nick = nick;
-            this.Text = text;
-            this.Time = dateTime;
-        }
+
+        public Message(string nick, string text, DateTime dateTime) =>
+                    (this.Nick, this.Text, this.Time) = (nick, text, dateTime);
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public override string ToString()
-        {
-            string time = Time.ToShortTimeString();
-            return $"{Text}\n{time}";
-        }
     }
 }
 

@@ -27,9 +27,5 @@ namespace TelegramBot_WPF
             InitializeComponent();
         }
 
-        //public Dowload(object data):this()
-        //{
-        //    this.DataContext = data;
-        //}
     }
 }

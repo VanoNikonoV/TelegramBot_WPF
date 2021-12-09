@@ -8,13 +8,18 @@
       d:DesignHeight="300" d:DesignWidth="900"
       Title="Dowload">
 
-    
     <Grid>
         <DataGrid x:Name="fileDownloadDG" AutoGenerateColumns="False" ItemsSource="{Binding}">
             <DataGrid.Columns >
-                <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}" Width="90"></DataGridTextColumn>
-                <DataGridTextColumn Header="Имя файла" Binding="{Binding Path=FileName}" Width="*"></DataGridTextColumn>
-                <DataGridTextColumn Header="ID" Binding="{Binding Path=FileId}" Width="*"></DataGridTextColumn>
+                <DataGridTextColumn Header="Номер" 
+                                    Binding="{Binding Path=Number, UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="90"></DataGridTextColumn>
+                <DataGridTextColumn Header="Имя файла" 
+                                    Binding="{Binding Path=FileName, UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="*"></DataGridTextColumn>
+                <DataGridTextColumn Header="ID" 
+                                    Binding="{Binding Path=FileId, UpdateSourceTrigger=PropertyChanged}" 
+                                    Width="*"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         

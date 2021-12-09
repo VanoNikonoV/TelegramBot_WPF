@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace TelegramBot_WPF
 {
@@ -14,14 +10,17 @@ namespace TelegramBot_WPF
         /// <summary>
         /// Номер записи
         /// </summary>
+        [JsonProperty("number")]
         public int Number { get; set; }
         /// <summary>
         /// ID скаченого файла
         /// </summary>
+        [JsonProperty("fileId")]
         public string FileId { get; }
         /// <summary>
         /// Имя скаченого файла
         /// </summary>
+        [JsonProperty("fileName")]
         public string FileName { get; set; }
 
         public InfoFiles(string fileId, string fileName, int count) => 

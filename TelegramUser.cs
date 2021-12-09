@@ -54,26 +54,15 @@ namespace TelegramBot_WPF
         [JsonIgnore]
         public string PathUserPhoto 
         {
-            get {
-                    string p = folderUserPhoto + this.id + ".jpg";
+            get {   string p = folderUserPhoto + this.id + ".jpg";
 
                     bool flag = File.Exists(p);
 
-                    if (flag)
-                    { 
-                        return folderUserPhoto + this.id + ".jpg";
-                    }
-                    else
-                    { 
-                        return folderUserPhoto + "NoPhoto.png";
-                    }
+                    if (flag) return folderUserPhoto + this.id + ".jpg";
 
-                } //pathUserPhoto + fileName = id + .jpg
+                    else return @"Image\NoPhoto.png";
+                } 
 
-            //set { 
-            //    this.pathUserPhoto = value;
-            //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PathUserPhoto)));
-            //    } 
         }
 
         [JsonIgnore]
@@ -122,9 +111,10 @@ namespace TelegramBot_WPF
         {
             Chat.Add(new Message(Nick, Text, dateTime));
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Chat)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty)); //что бы обговлялось фото пользователя
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.LastMessage)));
+            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Chat)));
+            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.LastMessage)));
         }
 
         /// <summary>

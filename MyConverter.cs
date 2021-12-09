@@ -4,9 +4,11 @@ using System.Windows.Data;
 using System.Windows.Media;
 
 namespace TelegramBot_WPF
-{
-  
-        public class MyConverter : IValueConverter
+{    
+    /// <summary>
+    /// Конвектор для даты
+    /// </summary>
+    public class MyConverter : IValueConverter
         {
             public object Convert(object o, Type type,
                 object parameter, CultureInfo culture)

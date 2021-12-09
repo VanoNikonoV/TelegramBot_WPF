@@ -61,51 +61,33 @@
                     <Setter Property="FontStyle" Value="Italic"/>
                     <Setter Property="HorizontalAlignment" Value="Right"/>
                 </DataTrigger>
-                <!--<DataTrigger Binding="{Binding Path=Time}" Value="Support">
-                    <Setter Property="TextElement.FontSize" Value="10"></Setter>
-                </DataTrigger>-->
             </Style.Triggers>
         </Style>
 
         <DataTemplate x:Key="Chat">
-            <!--<DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding Path=Nick}">
-                    <DataTrigger.Value>
-                        <local:Nick>Support</local:Nick>
-                    </DataTrigger.Value>
-                    <Setter TargetName="border" Property="BorderBrush" Value="Yellow"/>
-                </DataTrigger>
-            </DataTemplate.Triggers>-->
-            <Border x:Name="border" BorderBrush="Black" Margin="5" BorderThickness="2" 
-                            CornerRadius="10">
+
+            <Border Name="border" BorderBrush="Black" Margin="5" BorderThickness="2" 
+                            CornerRadius="15,15,0,15">
                 <StackPanel    Margin="5" Orientation="Vertical">
 
-                    <TextBlock x:Name="concreteUser_Message"
-                        Text="{Binding ElementName=usersList, Path=SelectedItem.Chat[3].Text,
-                                       diag:PresentationTraceSources.TraceLevel=High}" 
-                                       Margin="0" 
-                                       FontSize="20" 
-                                       TextWrapping="Wrap"></TextBlock>
+                    <TextBlock  Text="{Binding  Path=Text}" 
+                                Margin="2" 
+                                FontSize="20" 
+                                TextWrapping="Wrap"></TextBlock>
 
-                    <TextBlock Text="{Binding ElementName=usersList, Path=SelectedItem.Chat[1].Time}" 
+                    <TextBlock Text="{Binding Path=Time, Converter={StaticResource MyConverter}}" 
                                Margin="10 0" FontSize="10" 
                                Foreground="Gray" 
                                TextAlignment="Right"/>
 
-                    <!--<TextBlock Text="{Binding ElementName=usersList, 
-                               Path=SelectedItem.Time, 
-                               Converter={StaticResource MyConverter}}" 
-                               Margin="10 0" FontSize="10" 
-                               Foreground="Gray" 
-                               TextAlignment="Right"/>-->
                 </StackPanel>
             </Border>
         </DataTemplate>
 
     </Page.Resources>
 
-    <!--Это информирует элемент управления Wi о том какие обработчики вызывать
-    при поступлении команд Open Save-->
+    <!--Это информирует элемент управления Home о том какие обработчики вызывать
+    при поступлении команд Save-->
     <Page.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Save"
                         Executed="SaveCmdExecuted"
@@ -151,7 +133,8 @@
                  IsSynchronizedWithCurrentItem="True"
                  Margin="0,0,5,0" HorizontalContentAlignment="Stretch"
                  BorderThickness="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemTemplate="{StaticResource Sender}"  Background="AliceBlue"/>
+                 ItemTemplate="{StaticResource Sender}"  Background="AliceBlue"
+                 SelectionChanged="DisplayChat"/>
 
         <!--Получатель сообщения-->
         <ListBox x:Name="concreteUser"
@@ -160,29 +143,10 @@
                  Background="{StaticResource MyGridBrushResource}"
                  Margin="2,0,5,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                 ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat}">
-            <!--ItemsSource="{Binding ElementName=usersList, Path=SelectedItem.Chat,
-                 diag:PresentationTraceSources.TraceLevel=High}"-->
-            <!--<ListBox.ItemTemplate>
-            <DataTemplate>
-                <Border x:Name="border" BorderBrush="Black" Margin="5" BorderThickness="2" 
-                            CornerRadius="10">
-                    <StackPanel    Margin="5" Orientation="Vertical">
-
-                        <TextBlock Text="{Binding Path=Chat.Text}"   
-                                   Margin="0" 
-                                   FontSize="20" 
-                                   TextWrapping="Wrap"></TextBlock>
-                    </StackPanel>
-                </Border>
-            </DataTemplate>
-            </ListBox.ItemTemplate>-->
-            <!--Path=SelectedItem.Messages
-            ItemsSource="{Binding ElementName=usersList, Path = SelectedItem.Messages}">
-            ItemTemplate="{StaticResource Chat}"-->
+                 ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                 ItemTemplate="{StaticResource Chat}">
         </ListBox>
-        
+
         <StatusBar Grid.Row="4" Grid.ColumnSpan="3">
             <StatusBarItem>
                 <TextBlock x:Name="statBarText" 
@@ -191,7 +155,7 @@
                 </TextBlock>
             </StatusBarItem>
         </StatusBar>
-        
+
         <!--Меню-->
         <GroupBox FontSize="20"
                   HorizontalAlignment="Stretch" 
@@ -207,7 +171,7 @@
                     <ColumnDefinition Width="210*"/>
                     <ColumnDefinition Width="50"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60"/>
                     <RowDefinition Height="50"/>
@@ -219,7 +183,7 @@
                            Text="{Binding ElementName=usersList, Path=SelectedItem.Id}"
                            Visibility="Collapsed"/>
 
-               
+
                 <TextBox x:Name="txtMsgSend"
                          Grid.Column="0" Grid.Row="0" 
                          Grid.ColumnSpan="2" Grid.RowSpan="2"
@@ -257,12 +221,12 @@
                            VerticalAlignment="Center"/>
                 </Button>
 
-                <Button x:Name="btnMsgSendaAndVoice" 
-                        Grid.Column="2" Grid.Row="4"                     
-                        Click="MsgSendaAndVoice_buttonClick" 
+                <Button x:Name="btnMsgSendAndVoice" 
+                        Grid.Column="2" Grid.Row="3"                     
+                        Click="MsgSendAndVoice_buttonClick" 
                         Background="{x:Null}" BorderBrush="{x:Null}" 
                         MouseEnter="MouseEnter_SendaAndVoice" 
-                        MouseLeave="MouseLeave_SatusBar">
+                        MouseLeave="MouseLeave_SatusBar" HorizontalAlignment="Right" Margin="0,0,-0.4,0" Width="50">
                     <Image Source="Image/Voice.png" 
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center" ></Image>
@@ -271,7 +235,7 @@
                 <Button x:Name="btnDownload"
                         Grid.Column="2" Grid.Row="1"
                         Background="{x:Null}" BorderBrush="{x:Null}"
-                        Click="download_Click" 
+                        Click="ShowDownloaded_Click" 
                         MouseEnter="MouseEnter_Download" 
                         MouseLeave="MouseLeave_SatusBar" >
                     <Image Source="Image/Open.png"  Cursor="ArrowCD" 
@@ -279,8 +243,9 @@
                            HorizontalAlignment="Center"/>
                 </Button>
 
-                <Label Grid.Row="2" Grid.ColumnSpan="3" 
-                       HorizontalAlignment="Center" VerticalAlignment="Bottom">Параметры озвучки:</Label>
+                <Label Grid.Row="2" Grid.Column="1" Height="40"
+                       HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                        >Параметры озвучки:</Label>
 
                 <!--Параметры озвучки-->
                 <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
@@ -298,7 +263,8 @@
 
                     <ComboBox x:Name="speedComboBox" 
                               MinWidth="100" Margin="0,5,5,10" FontSize="18">
-                        <ComboBoxItem Content="Скорость"/><!--0-->
+                        <ComboBoxItem Content="Скорость"/>
+                        <!--0-->
                         <ComboBoxItem Content="0.1"/>
                         <ComboBoxItem Content="0.5"/>
                         <ComboBoxItem Content="1.5"/>
@@ -307,13 +273,14 @@
 
                     <ComboBox x:Name="emotionComboBox" 
                               MinWidth="230" Margin="0,5,5,10" FontSize="18">
-                        <ComboBoxItem Content="Эмоциональный окрас"/><!--neutral-->
+                        <ComboBoxItem Content="Эмоциональный окрас"/>
+                        <!--neutral-->
                         <ComboBoxItem Content="good"/>
                         <ComboBoxItem Content="evil"/>
                     </ComboBox>
 
                 </StackPanel>
-                
+
             </Grid>
         </GroupBox>
     </Grid>

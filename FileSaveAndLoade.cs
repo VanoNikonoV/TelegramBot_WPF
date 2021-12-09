@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using Newtonsoft.Json;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace TelegramBot_WPF
 {
+    /// <summary>
+    /// Десерилазует файл по указаному пути и сериализует коллекцию в файл .json
+    /// </summary>
     public class FileSaveAndLoade : IInfoFilesSource<InfoFiles>
     {
         /// <summary>

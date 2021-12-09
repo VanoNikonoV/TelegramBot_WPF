@@ -1,26 +1,18 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Telegram.Bot.Types.InputFiles;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
+
 
 namespace TelegramBot_WPF
 {
-
     /// <summary>
     /// Логика взаимодействия для Home.xaml
     /// </summary>
@@ -31,12 +23,12 @@ namespace TelegramBot_WPF
         private readonly string pathFile = TelegramMessageClient.folderFiles;
 
         private MessageLogSaveAndLoade MessageLog;
-
-        //private FileSaveAndLoade FileDownload;
         
-        Dowload expenseReportPage = new Dowload();
+        Dowload downloadedPage = new Dowload();
 
         private TelegramMessageClient client;
+
+        private static readonly HttpClient httpClient = new HttpClient();
 
         [Obsolete]
         public Home()
@@ -72,28 +64,6 @@ namespace TelegramBot_WPF
             };
         }
 
-        /// <summary>
-        /// Оправляет и записывает сообщение по нажатию кнопки
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MsgSend_buttonClick(object sender, RoutedEventArgs e)
-        {
-            var curUser = usersList.SelectedItem as TelegramUser;
-
-            if (curUser != null)
-            {
-                client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
-
-                txtMsgSend.Text = string.Empty;
-
-                MessageLog.SaveFile(client.Users);
-            }
-            else
-            {
-                MessageBox.Show("Выберите пользователя", caption: nameof(TelegramMessageClient));
-            }
-        }
 
         /// <summary>
         /// Загрузка данных при запуске программы
@@ -104,22 +74,9 @@ namespace TelegramBot_WPF
         {
             MessageLog = new MessageLogSaveAndLoade(pathMsgLog);
 
-            //FileDownload = new FileSaveAndLoade(); // pathFile + ID 
-
             try
             {
                 client.Users = MessageLog.LoadFile();
-
-                //foreach (var user in client.Users)
-                //{
-                //    string path = pathFile +  user.Id.ToString() + ".json";
-
-                //    if (File.Exists(path))
-                //    {
-                //        user.InfoDowloadFiles = FileDownload.LoadFile(path);
-                //    } 
-                //}
-
             }
             catch (Exception ex)
             {
@@ -137,20 +94,70 @@ namespace TelegramBot_WPF
             throw new NotImplementedException();
         }
 
-        private void download_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Показать чат с тользователем
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisplayChat(object sender, SelectionChangedEventArgs e)
+        {
+            var User = usersList.SelectedItem as TelegramUser;
+
+            concreteUser.ItemsSource = User.Chat;
+
+            concreteUser.ScrollIntoView(concreteUser.Items[concreteUser.Items.Count - 1]);
+        }
+
+        /// <summary>
+        /// Показать вкладку с файлами отправленными пользователем
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ShowDownloaded_Click(object sender, RoutedEventArgs e)
         {
             var curUser = usersList.SelectedItem as TelegramUser;
 
-            this.expenseReportPage.DataContext = curUser.InfoDowloadFiles;
+            this.downloadedPage.DataContext = curUser.InfoDowloadFiles;
 
-            //Dowload expenseReportPage = new Dowload (this.client.InfoFiles); // передать infoFiles конктреного пользователя
-            this.NavigationService.Navigate(expenseReportPage);
+            this.NavigationService.Navigate(downloadedPage);
         }
 
-        private void MsgSendaAndVoice_buttonClick(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Оправляет и записывает сообщение по нажатию кнопки
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MsgSend_buttonClick(object sender, RoutedEventArgs e)
+        {
+            var curUser = usersList.SelectedItem as TelegramUser;
+
+            if (curUser != null)
+            {
+                client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
+
+                txtMsgSend.Text = string.Empty;
+
+                //MessageLog.SaveFile(client.Users);
+            }
+            else
+            {
+                MessageBox.Show("Выберите пользователя", caption: nameof(TelegramMessageClient));
+            }
+        }
+
+        /// <summary>
+        /// Отправляет текст и его озвучку
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void MsgSendAndVoice_buttonClick(object sender, RoutedEventArgs e)
         {
             if (txtMsgSend.Text != string.Empty)
             {
+                var curUser = usersList.SelectedItem as TelegramUser;
+
+                client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
+
                 // получаю значения из ComboBoxs
                 string voice = (voiceComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
                 string speed = string.Empty;
@@ -176,9 +183,10 @@ namespace TelegramBot_WPF
                     emotion = (this.emotionComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
                 }
 
+                #region Запрос первый
+
                 // формирование строки запроса
                 StringBuilder data = new StringBuilder();
-
                 data.AppendFormat(@"https://zvukogram.com/index.php?r=api/");
                 data.AppendFormat("longtext&token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&&text={0}", txtMsgSend.Text);
                 data.AppendFormat("&voice={0}", voice);
@@ -186,65 +194,38 @@ namespace TelegramBot_WPF
                 data.AppendFormat("&speed={0}", speed);
                 data.AppendFormat("&pitch=1&emotion={0}", emotion);
 
-                (int id, string status_or_error) info = VoiceOver.ChallengeRequestOne(data.ToString());
+                (int id, string status_or_error) info = await Home.RequestOne(data.ToString());
+
+                statBarText.Text = "Запрос отправлен!";
 
                 // выводит ощибку
-                if (info.id == 0) MessageBox.Show(messageBoxText: $"Статуса запроса {info.status_or_error}", 
-                                                    caption: "Запрос на озвучку", 
-                                                    MessageBoxButton.OK, 
+                if (info.id == 0) MessageBox.Show(messageBoxText: $"Статуса запроса {info.status_or_error}",
+                                                    caption: "Запрос на озвучку",
+                                                    MessageBoxButton.OK,
                                                     MessageBoxImage.Warning);
+                #endregion
 
-                //if (info.id != 0) 
-                //{
-                //    Uri path_file = new Uri(info.status_or_error);
+                #region Запрос второй
 
-                //    InputOnlineFile pathFile = new InputOnlineFile(path_file);
+                data.Clear();
+                data.AppendFormat(@"https://zvukogram.com/index.php?r=api/");
+                data.Append("result&token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&");
+                data.AppendFormat("id={0}", info.id);
 
-                //    //InputOnlineFile pathFile = new InputOnlineFile(info.status_or_error);
+                string path = await Home.RequestTwo(data.ToString());
 
-                //    var curUser = usersList.SelectedItem as TelegramUser;
+                #endregion
 
-                //    client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
+                InputOnlineFile pathFile = new InputOnlineFile(path);
 
-                //    MessageLog.SaveFile(client.Users);
+                client.SendVoice(pathFile, TargetSend.Text);
 
-                //    client.SendVoice(pathFile, TargetSend.Text);
+                statBarText.Text = "Голосовое сообщение отправленно на сервер Telegram!";
 
-                //    Debug.WriteLine("status = 1");
-                //}
-
-                // Запрос в процессе status = 0 вторая строка запрос
-                if (info.status_or_error == "1" || info.status_or_error == "0")
-                {
-                    this.statBarText.Text = $"ID файла {info.id}, статус {info.status_or_error}";
-
-                    data.Clear();
-
-                    data.AppendFormat(@"https://zvukogram.com/index.php?r=api/");
-                    data.Append("result&token=7b79dbc5ed7d3f5f0a51f32fb7e6ca23&email=cmn.nia@gmail.com&");
-                    data.AppendFormat("id={0}", info.id);
-
-                    (string path, string expansion) info2 = (string.Empty, string.Empty);
-
-                    while (info2.path == null || info2.path == string.Empty)
-                    {
-                        info2 = VoiceOver.ChallengeRequestTwo(data.ToString());
-                    }
-
-                    var curUser = usersList.SelectedItem as TelegramUser;
-
-                    InputOnlineFile pathFile = new InputOnlineFile(info2.path);
-
-                    client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
-
-                    MessageLog.SaveFile(client.Users);
-
-                    client.SendVoice(pathFile, TargetSend.Text);
-                }
             }
-            else MessageBox.Show(messageBoxText: "Отсутсвует текст для озвучки", 
-                                caption: "Неверный запрос", 
-                                MessageBoxButton.OK, 
+            else MessageBox.Show(messageBoxText: "Отсутсвует текст для озвучки",
+                                caption: "Неверный запрос",
+                                MessageBoxButton.OK,
                                 MessageBoxImage.Warning);
             
         }
@@ -289,11 +270,8 @@ namespace TelegramBot_WPF
                 var curUser = usersList.SelectedItem as TelegramUser;
 
                 MessageLog.SaveMessageUser(curUser.Chat, saveDlg.FileName);
-
-                //FileDownload.SaveFile(client.InfoFiles);
             }
         }
-
 
         #region MouseEnter and MouseLeave
         
@@ -309,11 +287,8 @@ namespace TelegramBot_WPF
 
         private void txtMsgSend_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (!txtMsgSend.IsFocused)
-            {
-                txtMsgSend.Text = "Напишите текс для отправки";
-            }
-           
+            if (!txtMsgSend.IsFocused) txtMsgSend.Text = "Напишите текс для отправки";
+ 
         }
 
         private void MouseEnter_Download(object sender, MouseEventArgs e)
@@ -336,5 +311,78 @@ namespace TelegramBot_WPF
             statBarText.Text = "Нажмите чтобы сохранить переписку для выбранного пользователя";
         }
         #endregion
+
+        /// <summary>
+        /// Отправляет запрос для постановки задачи на озвучку текста.
+        /// </summary>
+        /// <param name="request">Параметры запроса</param>
+        /// <returns>"id" - уникальный идентификатор озвучки 
+        /// В зависимость от полученного статуса один из вариантов:
+        ///          "status" - текущий статус озвучки
+        ///          "error" - информацию об ощибке
+        ///     
+        /// Доступны 3 значения status_or_error:
+        ///     0  - в процессе
+        ///     1  - завершен успешно
+        ///     error  - ошибка запроса (при этом id = 0)</returns>
+        static async Task<(int id, string path)> RequestOne(string request)
+        {
+            HttpResponseMessage response = (await httpClient.GetAsync(request)).EnsureSuccessStatusCode();
+
+            using (var streamResponse = await response.Content.ReadAsStreamAsync())
+
+            using (StreamReader sr = new StreamReader(streamResponse))
+            {
+                var result = sr.ReadToEnd();//ответ
+
+                int id = Convert.ToInt32(JObject.Parse(result)["id"].ToString());
+
+                string status = Convert.ToString(JObject.Parse(result)["status"]);
+
+                string error = Convert.ToString(JObject.Parse(result)["error"]);
+
+                if (status == "-1") return (0, error);
+
+                else return (id, status);
+            }
+
+        }
+
+        /// <summary>
+        /// Отправляет запрос, чтобы узнать результат озвучки и путь к файлу
+        /// </summary>
+        /// <param name="request">Параметры запроса</param>
+        /// <returns>
+        /// path - путь к файлу
+        /// </returns>
+        static async Task<string> RequestTwo(string request)
+        {
+            bool flag = true;
+            
+            string path = string.Empty;
+
+            while (flag) // иногда прихожит ответ на запрос longtex вместо result, поэтому делаю проверку path
+            {
+                HttpResponseMessage response = (await httpClient.GetAsync(request)).EnsureSuccessStatusCode();
+
+                using (var streamResponse = await response.Content.ReadAsStreamAsync())
+
+                using (StreamReader sr = new StreamReader(streamResponse))
+                {
+                        var result = sr.ReadToEnd();
+
+                        int status = Convert.ToInt32(JObject.Parse(result)["status"]);
+
+                        if ((int)status == 1) path = Convert.ToString(JObject.Parse(result)["file"]);
+                        
+
+                        if (status == 0) await Task.Delay(60000); 
+                }
+
+                if (path != string.Empty) flag = false;
+            }
+
+            return path;
+        }
     }
 }

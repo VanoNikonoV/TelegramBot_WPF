@@ -1,29 +1,17 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
 namespace TelegramBot_WPF
 {
-    // Не корректный адрес в для фото юзера
-    // Страница с загрузкоми - номера каждый раз новые
-
     class TelegramMessageClient
     {
         private Home window;
 
         private TelegramBotClient bot;
-
-       // private FileSaveAndLoade FileDownload = new FileSaveAndLoade();
 
         private MessageLogSaveAndLoade MessageLog = new MessageLogSaveAndLoade(pathMessageLog);
 
@@ -43,9 +31,10 @@ namespace TelegramBot_WPF
         {
             this.Users = new ObservableCollection<TelegramUser>();
 
-            this.InfoFiles = new ObservableCollection<InfoFiles>(); //
+            this.InfoFiles = new ObservableCollection<InfoFiles>();
 
             Directory.CreateDirectory(folderUserPhoto);
+
             Directory.CreateDirectory(folderFiles);
            
             this.window = W;
@@ -57,6 +46,11 @@ namespace TelegramBot_WPF
             bot.StartReceiving();
         }
 
+        /// <summary>
+        /// Обработка сообщений
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         [Obsolete]
         private void MessageListener(object sender, Telegram.Bot.Args.MessageEventArgs e)
         { 
@@ -112,11 +106,11 @@ namespace TelegramBot_WPF
             {
                 window.Dispatcher.Invoke(() =>
                 {
-                var person = new TelegramUser(e.Message.Chat.FirstName, e.Message.Chat.Id);
+                    var person = new TelegramUser(e.Message.Chat.FirstName, e.Message.Chat.Id);
 
-                DownloadFile(e.Message.Photo[e.Message.Photo.Length - 1].FileId, e.Message.Caption, person); //??= e.Message.Photo[e.Message.Photo.Length - 1].FileUniqueId
+                    DownloadFile(e.Message.Photo[e.Message.Photo.Length - 1].FileId, e.Message.Caption, person); //??= e.Message.Photo[e.Message.Photo.Length - 1].FileUniqueId
 
-                 bot.SendTextMessageAsync(e.Message.From.Id, $"файл {e.Message.Caption} скачен");
+                    bot.SendTextMessageAsync(e.Message.From.Id, $"файл {e.Message.Caption} скачен");
                 });
 
             }
@@ -197,8 +191,8 @@ namespace TelegramBot_WPF
 
             await bot.DownloadFileAsync(file.FilePath, fs);
 
-            Users[Users.IndexOf(person)].AddFile(fileId, name); 
-            
+            Users[Users.IndexOf(person)].AddFile(fileId, name);
+
             //// путь к сериализованной коллекции 
             //string path = folderFiles + person.Id + ".json";
 
@@ -209,7 +203,6 @@ namespace TelegramBot_WPF
             fs.Close();
 
             fs.Dispose();
-
         }
 
         /// <summary>
@@ -218,15 +211,17 @@ namespace TelegramBot_WPF
         /// <param name="Text">Текст сообщения</param>
         /// <param name="Id">ID пользователя - инициатора сообщения</param>
         /// <param name="user">TelegramUser - инициатор сообщения</param>
-        public void SendMessage(string Text, string Id, TelegramUser user)
+        public async void SendMessage(string Text, string Id, TelegramUser user)
         {
             long id = Convert.ToInt64(Id);
 
             string responseMsg = Text;
 
             user.AddMessage("Support", responseMsg, DateTime.Now);
+            
+            MessageLog.SaveFile(Users);
 
-            bot.SendTextMessageAsync(id, Text);
+            await bot.SendTextMessageAsync(id, Text);
         }
 
         /// <summary>
