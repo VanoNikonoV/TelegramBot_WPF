@@ -48,7 +48,8 @@ namespace TelegramBot_WPF
                 if (e.Key == Key.Return) 
                 {
                     var curUser = usersList.SelectedItem as TelegramUser;
-                    if (curUser != null)
+
+                    if (curUser != null && !string.IsNullOrWhiteSpace(txtMsgSend.Text))
                     {
                         client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
 
@@ -131,13 +132,11 @@ namespace TelegramBot_WPF
         {
             var curUser = usersList.SelectedItem as TelegramUser;
 
-            if (curUser != null)
+            if (curUser != null && !string.IsNullOrWhiteSpace(txtMsgSend.Text))
             {
                 client.SendMessage(txtMsgSend.Text, TargetSend.Text, curUser);
 
                 txtMsgSend.Text = string.Empty;
-
-                //MessageLog.SaveFile(client.Users);
             }
             else
             {
@@ -152,7 +151,7 @@ namespace TelegramBot_WPF
         /// <param name="e"></param>
         private async void MsgSendAndVoice_buttonClick(object sender, RoutedEventArgs e)
         {
-            if (txtMsgSend.Text != string.Empty)
+            if (!string.IsNullOrWhiteSpace(txtMsgSend.Text))
             {
                 var curUser = usersList.SelectedItem as TelegramUser;
 

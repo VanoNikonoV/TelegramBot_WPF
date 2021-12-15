@@ -34,7 +34,12 @@ namespace TelegramBot_WPF
             using (var reader = File.OpenText(path))
             {
                 var fileText = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<ObservableCollection<TelegramUser>>(fileText); 
+
+                var temp = JsonConvert.DeserializeObject<ObservableCollection<TelegramUser>>(fileText);
+
+                if (temp is null) return new ObservableCollection<TelegramUser>();
+
+                else return temp;
             }
         }
 

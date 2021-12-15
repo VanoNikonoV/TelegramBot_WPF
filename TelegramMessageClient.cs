@@ -58,20 +58,23 @@ namespace TelegramBot_WPF
             {
                 window.Dispatcher.Invoke(() =>
                 {
-                    var person = new TelegramUser(e.Message.Chat.FirstName, e.Message.Chat.Id);
+                    TelegramUser person = new TelegramUser(e.Message.Chat.FirstName, e.Message.Chat.Id);
 
-                    if (!Users.Contains(person))
-                    {   // Получаю массив с фото пользователя
-                        var userPhoto = bot.GetUserProfilePhotosAsync(e.Message.From.Id).Result;
-
-                        // если у пользователя есть фото то скачать
-                        if (userPhoto.TotalCount != 0) DownloadUserPhoto(userPhoto.Photos[0][2].FileId, e.Message.Chat.Id);
-                        
-                        Users.Add(person);
-                    } 
+                    if (person != null)
                     {
-                        Users[Users.IndexOf(person)].AddMessage(person.Nick, e.Message.Text, DateTime.Now);
-                        MessageLog.SaveFile(Users);
+                        if (!Users.Contains(person))
+                        {   // Получаю массив с фото пользователя
+                            var userPhoto = bot.GetUserProfilePhotosAsync(e.Message.From.Id).Result;
+
+                            // если у пользователя есть фото то скачать
+                            if (userPhoto.TotalCount != 0) DownloadUserPhoto(userPhoto.Photos[0][2].FileId, e.Message.Chat.Id);
+
+                            Users.Add(person);
+                        }
+                        {
+                            Users[Users.IndexOf(person)].AddMessage(person.Nick, e.Message.Text, DateTime.Now);
+                            MessageLog.SaveFile(Users);
+                        }
                     }
                 }); 
             }
